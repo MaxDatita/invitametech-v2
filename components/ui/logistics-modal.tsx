@@ -121,14 +121,17 @@ export function LogisticsModal({ data = defaultLogisticsData }: LogisticsModalPr
           <div className="flex flex-col h-full">
             <div className="flex-1">
               <div className="p-4 space-y-4">
+                <p className='text-center'>
+                  Toca la imagen para verla en su tamaño original.
+                </p>
                 <div className="relative w-full h-[300px] rounded-xl overflow-hidden border">
                   <Image
-                    src={data.venueMapUrl}
-                    alt="Mapa del venue"
-                    fill
-                    style={{ objectFit: 'cover' }}
-                    onClick={() => window.open(data.venueMapUrl, '_blank')}
-                  />
+                        src={data.venueMapUrl}
+                        alt="Mapa del venue"
+                        fill
+                        style={{ objectFit: 'cover' }}
+                        onClick={() => window.open(data.venueMapUrl, '_blank')}
+                    />
                 </div>
               </div>
             </div>
