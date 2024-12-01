@@ -25,12 +25,15 @@ export async function getMessages(
   pageSize: number = 20, 
   random: boolean = false
 ): Promise<MessagesResponse> {
-  try {
+  
+
     const jwt = new JWT({
-      email: process.env.GOOGLE_CLIENT_EMAIL,
+      email: process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
       key: process.env.GOOGLE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
       scopes: ['https://www.googleapis.com/auth/spreadsheets'],
     });
+
+    console.log('JWT creado, intentando cargar documento...');
 
     const doc = new GoogleSpreadsheet(process.env.GOOGLE_SHEET_ID!, jwt);
     await doc.loadInfo();
@@ -69,11 +72,7 @@ export async function getMessages(
       hasMore: end < total,
       total
     };
-  } catch (error) {
-    console.error('Error en getMessages:', error);
-    return { messages: [], hasMore: false, total: 0 };
   }
-}
 
 export async function guardarAsistencia(invitado: Invitado): Promise<boolean> {
   try {

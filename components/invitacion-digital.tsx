@@ -11,6 +11,8 @@ import { useQuery, useInfiniteQuery } from '@tanstack/react-query';
 import { toast } from 'sonner'
 import { theme } from '@/config/theme';
 import { StyledDialog } from "@/components/ui/styled-dialog"
+import { MenuModal } from "@/components/ui/menu-modal"
+import { LogisticsModal } from "@/components/ui/logistics-modal"
 
 
 const gradientColors = [
@@ -108,6 +110,7 @@ export function InvitacionDigitalComponent() {
   const [hasConfirmed, setHasConfirmed] = useState(false);
   const [isAsistenciaDialogOpen, setIsAsistenciaDialogOpen] = useState(false);
   const [showUpdateButton, setShowUpdateButton] = useState(false);
+  const [selectedTab, setSelectedTab] = useState<'bebidas' | 'comidas'>('bebidas');
 
   const eventDate = useMemo(() => new Date(theme.dates.event), []);
   const contentActivationDate = new Date(theme.dates.contentActivation);
@@ -396,67 +399,8 @@ export function InvitacionDigitalComponent() {
         )}
 
         <div className="grid grid-cols-2 gap-4">
-          <Button 
-            variant="primary" 
-            className="flex items-center justify-center"
-          >
-            <MapPin className="mr-2 h-4 w-4" /> Ubicación
-          </Button>
-          <Dialog>
-            <DialogTrigger asChild>
-              <Button variant="primary" className="flex items-center justify-center">
-                <Clock className="mr-2 h-4 w-4" /> Cronograma
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="sm:max-w-[425px]">
-              <DialogHeader>
-                <DialogTitle>Cronograma del Evento</DialogTitle>
-              </DialogHeader>
-              <div className="py-4">
-                {isContentActive ? (
-                  <div className="max-h-[200px] overflow-y-auto pr-2">
-                    <div className="grid gap-4">
-                      <div className="grid grid-cols-4 items-center gap-4">
-                        <span className="font-bold">18:00</span>
-                        <span className="col-span-3">Recepción de invitados</span>
-                      </div>
-                      <div className="grid grid-cols-4 items-center gap-4">
-                        <span className="font-bold">19:00</span>
-                        <span className="col-span-3">Comienzo de la ceremonia</span>
-                      </div>
-                      <div className="grid grid-cols-4 items-center gap-4">
-                        <span className="font-bold">20:30</span>
-                        <span className="col-span-3">Catering de recepción</span>
-                      </div>
-                      <div className="grid grid-cols-4 items-center gap-4">
-                        <span className="font-bold">21:30</span>
-                        <span className="col-span-3">Comienzo de cena</span>
-                      </div>
-                      <div className="grid grid-cols-4 items-center gap-4">
-                        <span className="font-bold">0:30</span>
-                        <span className="col-span-3">Balz de compleañera</span>
-                      </div>
-                      <div className="grid grid-cols-4 items-center gap-4">
-                        <span className="font-bold">1:00</span>
-                        <span className="col-span-3">Baile</span>
-                      </div>
-                      <div className="grid grid-cols-4 items-center gap-4">
-                        <span className="font-bold">3:00</span>
-                        <span className="col-span-3">Entrega de velas</span>
-                      </div>
-                      <div className="grid grid-cols-4 items-center gap-4">
-                        <span className="font-bold">6:00</span>
-                        <span className="col-span-3">Cierre del evento</span>
-                      </div>
-                    </div>
-                  </div>
-                ) : (
-                  // DINAMICO:  Frase antes de fecha de activación.
-                  <p>El cronograma estará disponible más cerca de la fecha del evento.</p>
-                )}
-              </div>
-            </DialogContent>
-          </Dialog>
+          <LogisticsModal />
+          <MenuModal />
           <StyledDialog 
             title="Contenido del Evento"
             trigger={

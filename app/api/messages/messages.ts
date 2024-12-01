@@ -9,10 +9,18 @@ export default async function handler(
   // Configurar CORS si es necesario
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST');
 
+  console.log('Service Account Email:', process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL?.toLowerCase());
+  console.log('Key exists:', !!process.env.GOOGLE_PRIVATE_KEY);
+  console.log('Sheet ID:', process.env.GOOGLE_SHEET_ID);
+
   if (req.method === 'POST') {
     try {
       const { fecha, nombre, mensaje } = req.body;
       console.log('Recibiendo mensaje:', { fecha, nombre, mensaje }); // Para debug
+
+      console.log('Email:', process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL);
+      console.log('Key exists:', !!process.env.GOOGLE_PRIVATE_KEY);
+      console.log('Sheet ID:', process.env.GOOGLE_SHEET_ID);
 
       const jwt = new JWT({
         email: process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
