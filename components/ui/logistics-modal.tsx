@@ -172,7 +172,7 @@ export function LogisticsModal({ data = defaultLogisticsData }: LogisticsModalPr
               onClick={() => window.open(data.googleMapsUrl, '_blank')}
             >
               <MapPin className="mr-2 h-4 w-4" /> 
-              Ver ubicación en Google Maps
+              Ver ubicación
             </Button>
 
             <Button 
@@ -181,7 +181,7 @@ export function LogisticsModal({ data = defaultLogisticsData }: LogisticsModalPr
               onClick={() => setContentType('schedule')}
             >
               <Clock className="mr-2 h-4 w-4" />
-              Ver cronograma del evento
+              Cronograma del evento
             </Button>
 
             <Button 
@@ -190,7 +190,7 @@ export function LogisticsModal({ data = defaultLogisticsData }: LogisticsModalPr
               onClick={() => setContentType('map')}
             >
               <Map className="mr-2 h-4 w-4" />
-              Ver mapa del lugar
+              Mapa del lugar
             </Button>
           </div>
         )
