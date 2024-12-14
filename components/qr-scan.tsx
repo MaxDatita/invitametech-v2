@@ -1,7 +1,7 @@
 'use client';
 
-import { Html5QrcodeScanner, Html5Qrcode, Html5QrcodeSupportedFormats, Html5QrcodeScanType } from 'html5-qrcode';
-import { useEffect, useState } from 'react';
+import { Html5QrcodeScanner, Html5Qrcode } from 'html5-qrcode';
+import { useEffect, useState, useRef } from 'react';
 import { Button } from "@/components/ui/button"
 
 interface ScanResult {
@@ -19,11 +19,19 @@ const QRScanner = () => {
   const [isScanning, setIsScanning] = useState(true);
   const [hasPermission, setHasPermission] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const scannerRef = useRef<Html5QrcodeScanner | null>(null);
 
   useEffect(() => {
     const requestCameraPermission = async () => {
       try {
-        await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
+        const stream = await navigator.mediaDevices.getUserMedia({ 
+          video: { 
+            facingMode: 'environment',
+            width: { ideal: 1280 },
+            height: { ideal: 720 }
+          } 
+        });
+        stream.getTracks().forEach(track => track.stop()); // Liberamos la cámara después de obtener permiso
         setHasPermission(true);
       } catch (error) {
         console.error('Error accessing camera:', error);
@@ -32,12 +40,18 @@ const QRScanner = () => {
     };
 
     requestCameraPermission();
+
+    return () => {
+      if (scannerRef.current) {
+        scannerRef.current.clear();
+      }
+    };
   }, []);
 
   useEffect(() => {
-    if (!hasPermission) return;
+    if (!hasPermission || !isScanning) return;
 
-    const scanner = new Html5QrcodeScanner("reader", {
+    const config = {
       qrbox: {
         width: 250,
         height: 250,
@@ -47,10 +61,9 @@ const QRScanner = () => {
       showTorchButtonIfSupported: true,
       showZoomSliderIfSupported: true,
       defaultZoomValueIfSupported: 2,
-      formatsToSupport: [Html5QrcodeSupportedFormats.QR_CODE],
-      rememberLastUsedCamera: true,
-      supportedScanTypes: [Html5QrcodeScanType.SCAN_TYPE_CAMERA],
-    }, false);
+    };
+
+    scannerRef.current = new Html5QrcodeScanner("reader", config, false);
 
     const validateQRCode = async (qrCode: string) => {
       setIsLoading(true);
@@ -72,25 +85,28 @@ const QRScanner = () => {
     };
 
     const onScanSuccess = (decodedText: string) => {
-      validateQRCode(decodedText);
-      scanner.clear();
+      if (scannerRef.current) {
+        scannerRef.current.pause();
+        validateQRCode(decodedText);
+      }
     };
 
     const onScanError = (errorMessage: string) => {
       console.warn(errorMessage);
     };
 
-    scanner.render(onScanSuccess, onScanError);
+    scannerRef.current.render(onScanSuccess, onScanError);
 
     return () => {
-      scanner.clear();
+      if (scannerRef.current) {
+        scannerRef.current.clear();
+      }
     };
-  }, [hasPermission]);
+  }, [hasPermission, isScanning]);
 
   const handleReset = () => {
     setScanResult(null);
     setIsScanning(true);
-    window.location.reload();
   };
 
   return (
