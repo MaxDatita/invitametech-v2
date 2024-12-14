@@ -83,23 +83,7 @@ const QRScanner = () => {
         padding: 0 !important;
       }
       #reader__dashboard_section_csr {
-        margin: 1rem 0 !important;
-      }
-      #reader__dashboard_section_csr > span {
         display: none !important;
-      }
-      #reader__dashboard_section_csr > button {
-        padding: 0.5rem 1rem !important;
-        border-radius: 0.5rem !important;
-        background: rgb(147 51 234) !important;
-        color: white !important;
-        border: none !important;
-        font-size: 0.875rem !important;
-        font-weight: 500 !important;
-        transition: background 0.2s !important;
-      }
-      #reader__dashboard_section_csr > button:hover {
-        background: rgb(126 34 206) !important;
       }
       #reader__dashboard_section_swaplink {
         display: none !important;
@@ -120,6 +104,21 @@ const QRScanner = () => {
       }
       #reader__camera_permission_button {
         display: none !important;
+      }
+      #reader__torch_button {
+        padding: 0.5rem 1rem !important;
+        border-radius: 0.5rem !important;
+        background: #bf90ee !important;
+        color: white !important;
+        border: none !important;
+        font-size: 0.875rem !important;
+        font-weight: 500 !important;
+        transition: background 0.2s !important;
+        margin: 0.5rem auto !important;
+        display: block !important;
+      }
+      #reader__torch_button:hover {
+        background: rgb(126 34 206) !important;
       }
       .html5-qrcode-element {
         margin-bottom: 0.5rem !important;
