@@ -17,37 +17,28 @@ interface ScanResult {
 
 const QRScanner = () => {
   const [scanResult, setScanResult] = useState<ScanResult | null>(null);
-  const [isScanning, setIsScanning] = useState(true);
+  const [isScanning, setIsScanning] = useState(false);
   const [hasPermission, setHasPermission] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const scannerRef = useRef<Html5QrcodeScanner | null>(null);
 
-  useEffect(() => {
-    const requestCameraPermission = async () => {
-      try {
-        const stream = await navigator.mediaDevices.getUserMedia({ 
-          video: { 
-            facingMode: 'environment',
-            width: { ideal: 1280 },
-            height: { ideal: 720 }
-          } 
-        });
-        stream.getTracks().forEach(track => track.stop()); // Liberamos la cámara después de obtener permiso
-        setHasPermission(true);
-      } catch (error) {
-        console.error('Error accessing camera:', error);
-        setHasPermission(false);
-      }
-    };
-
-    requestCameraPermission();
-
-    return () => {
-      if (scannerRef.current) {
-        scannerRef.current.clear();
-      }
-    };
-  }, []);
+  const requestCameraPermission = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ 
+        video: { 
+          facingMode: 'environment',
+          width: { ideal: 1280 },
+          height: { ideal: 720 }
+        } 
+      });
+      stream.getTracks().forEach(track => track.stop());
+      setHasPermission(true);
+      setIsScanning(true);
+    } catch (error) {
+      console.error('Error accessing camera:', error);
+      setHasPermission(false);
+    }
+  };
 
   useEffect(() => {
     if (!hasPermission || !isScanning) return;
@@ -60,7 +51,7 @@ const QRScanner = () => {
       fps: 10,
       aspectRatio: 1.0,
       showTorchButtonIfSupported: true,
-      showZoomSliderIfSupported: true,
+      showZoomSliderIfSupported: false,
       defaultZoomValueIfSupported: 2,
       formatsToSupport: [Html5QrcodeSupportedFormats.QR_CODE],
       experimentalFeatures: {
@@ -101,7 +92,7 @@ const QRScanner = () => {
         padding: 0.5rem 1rem !important;
         border-radius: 0.5rem !important;
         background: rgb(147 51 234) !important;
-        color: #000000 !important;
+        color: white !important;
         border: none !important;
         font-size: 0.875rem !important;
         font-weight: 500 !important;
@@ -111,26 +102,27 @@ const QRScanner = () => {
         background: rgb(126 34 206) !important;
       }
       #reader__dashboard_section_swaplink {
-        color: rgb(126 34 206) !important;
-        text-decoration: none !important;
-        font-size: 0.875rem !important;
+        display: none !important;
       }
       select {
-        padding: 0.5rem !important;
-        border-radius: 0.5rem !important;
-        border: 1px solid rgb(233 213 255) !important;
-        width: 100% !important;
-        margin-bottom: 0.5rem !important;
-        color: rgb(55 65 81) !important;
-        background: #000000 !important;
+        display: none !important;
       }
       #reader__scan_region {
-        background: #000000 !important;
+        background: white !important;
         border-radius: 0.75rem !important;
         overflow: hidden !important;
       }
       #reader__scan_region > img {
         display: none !important;
+      }
+      #reader__status_text {
+        display: none !important;
+      }
+      #reader__camera_permission_button {
+        display: none !important;
+      }
+      .html5-qrcode-element {
+        margin-bottom: 0.5rem !important;
       }
     `;
 
@@ -182,7 +174,7 @@ const QRScanner = () => {
 
   const handleReset = () => {
     setScanResult(null);
-    setIsScanning(true);
+    setIsScanning(false);
   };
 
   return (
@@ -200,12 +192,12 @@ const QRScanner = () => {
             </div>
           ) : !hasPermission ? (
             <div className="text-center p-4">
-              <p className="body-base mb-4">Se requiere acceso a la cámara para permitir escanear el código QR</p>
+              <p className="body-base mb-4">Para escanear códigos QR, necesitamos acceso a tu cámara</p>
               <Button
-                onClick={() => window.location.reload()}
+                onClick={requestCameraPermission}
                 variant="primary"
               >
-                Permitir acceso
+                Permitir acceso a la cámara
               </Button>
             </div>
           ) : isScanning ? (
