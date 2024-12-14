@@ -18,6 +18,7 @@ const QRScanner = () => {
   const [scanResult, setScanResult] = useState<ScanResult | null>(null);
   const [isScanning, setIsScanning] = useState(true);
   const [hasPermission, setHasPermission] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     const requestCameraPermission = async () => {
@@ -52,6 +53,7 @@ const QRScanner = () => {
     }, false);
 
     const validateQRCode = async (qrCode: string) => {
+      setIsLoading(true);
       try {
         const response = await fetch(
           `https://script.google.com/macros/s/AKfycbwZMaaig2z4YUimzQweMhLIKSeco-ZcaSeKYVIu8qvZcCZfdIHJPGY-9b-i8K4JyggG/exec?code=${encodeURIComponent(qrCode)}`
@@ -64,6 +66,8 @@ const QRScanner = () => {
           success: false,
           message: "Error al validar el código QR"
         });
+      } finally {
+        setIsLoading(false);
       }
     };
 
@@ -90,14 +94,19 @@ const QRScanner = () => {
   };
 
   return (
-    <div className="min-h-screen pt-6 pb-6 pl-6 pr-6 bg-gradient-animation">
-      <div className="w-full max-w-md mx-auto rounded-xl">
-        <h1 className="heading-h1 mb-8">
+    <div className="min-h-screen pt-6 pb-6 pl-6 pr-6 bg-gradient-animation flex items-center justify-center">
+      <div className="w-full max-w-md mx-auto">
+        <h1 className="heading-h1 mb-8 text-center">
           Validación de Invitaciones
         </h1>
 
-        <div className="bg-white/90 backdrop-blur-sm rounded-xl p-4 shadow-lg mb-6">
-          {!hasPermission ? (
+        <div className="bg-white/90 backdrop-blur-sm rounded-xl p-4 shadow-lg">
+          {isLoading ? (
+            <div className="flex flex-col items-center justify-center p-8">
+              <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin mb-4" />
+              <p className="body-base text-center">Validando código QR...</p>
+            </div>
+          ) : !hasPermission ? (
             <div className="text-center p-4">
               <p className="body-base mb-4">Se requiere acceso a la cámara para permitir escanear el código QR</p>
               <Button
@@ -117,15 +126,15 @@ const QRScanner = () => {
           ) : (
             <>
               {scanResult && (
-                <div className={`rounded-lg p-6 ${
+                <div className={`rounded-xl p-6 ${
                   scanResult.success 
-                    ? 'bg-green-50 text-green-800 border border-green-200' 
-                    : 'bg-red-50 text-red-800 border border-red-200'
+                    ? 'bg-green-50 text-green-800 border border-green-200 text-center' 
+                    : 'bg-red-50 text-red-800 border border-red-200 text-center'
                 }`}>
-                  <h3 className="heading-h2 mb-4">
+                  <h3 className="heading-h2 mb-4 text-center">
                     {scanResult.success ? '✅ Invitación válida' : '❌ Invitación no válida'}
                   </h3>
-                  <p className="body-base mb-4">{scanResult.message}</p>
+                  <p className="body-base mb-4 text-center">{scanResult.message}</p>
                   {scanResult.details && (
                     <div className="space-y-2">
                       {scanResult.details.nombre && (
@@ -141,15 +150,13 @@ const QRScanner = () => {
                   )}
                 </div>
               )}
-              <button 
+              <Button 
                 onClick={handleReset}
-                className="mt-6 w-full px-6 py-3 bg-gradient-to-r from-purple-500 to-pink-500 
-                         text-white rounded-lg font-semibold shadow-md hover:from-purple-600 
-                         hover:to-pink-600 transition-all duration-200 focus:outline-none 
-                         focus:ring-2 focus:ring-purple-500 focus:ring-offset-2"
+                variant="primary"
+                className="w-full mt-4"
               >
                 Escanear otro código
-              </button>
+              </Button>
             </>
           )}
         </div>
