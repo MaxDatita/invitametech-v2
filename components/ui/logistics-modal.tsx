@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { Button } from "./button"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "./dialog"
-import { MapPin, Clock, Map, ArrowLeft, Route } from 'lucide-react'
+import { MapPin, Clock, Map, ArrowLeft, Route, X } from 'lucide-react'
 import Image from 'next/image'
 import { theme } from '@/config/theme'
 
@@ -43,13 +43,55 @@ interface LogisticsModalProps {
   data?: LogisticsData
 }
 
+// Componente para el modal del mapa
+const MapModal = ({ 
+  isOpen, 
+  onClose, 
+  imageUrl,
+  onReturn  // Nuevo prop para volver al modal de logística
+}: { 
+  isOpen: boolean
+  onClose: () => void
+  imageUrl: string
+  onReturn: () => void
+}) => {
+  if (!isOpen) return null;
+
+  return (
+    <Dialog open={isOpen} onOpenChange={onClose}>
+      <DialogContent className="sm:max-w-[425px] p-0 overflow-hidden rounded-xl">
+        <div className="relative w-full aspect-square">
+          <Button 
+            variant="secondary"
+            className="absolute right-2 top-2 z-10 bg-white/80 hover:bg-white/90 rounded-full"
+            onClick={() => {
+              onClose()
+              onReturn()
+            }}
+          >
+            <X className="h-4 w-4" />
+          </Button>
+          <Image
+            src={imageUrl}
+            alt="Mapa del venue"
+            fill
+            className="rounded-lg"
+            style={{ objectFit: 'cover' }}
+            priority
+          />
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+};
+
 export function LogisticsModal({ data = defaultLogisticsData }: LogisticsModalProps) {
   const [contentType, setContentType] = useState<ContentType>('main')
   const [isOpen, setIsOpen] = useState(false)
+  const [showMap, setShowMap] = useState(false)
   const contentActivationDate = new Date(theme.dates.contentActivation)
   const isContentActive = new Date() >= contentActivationDate
 
-  // Resetear el contentType cuando se cierra el modal
   const handleOpenChange = (open: boolean) => {
     setIsOpen(open)
     if (!open) {
@@ -57,11 +99,19 @@ export function LogisticsModal({ data = defaultLogisticsData }: LogisticsModalPr
     }
   }
 
-  // Función para obtener la clase de altura según el contenido
+  const handleShowMap = () => {
+    setShowMap(true)
+    setIsOpen(false)
+  }
+
+  const handleReturnToLogistics = () => {
+    setShowMap(false)
+    setIsOpen(true)
+  }
+
   const getDialogHeight = () => {
     switch (contentType) {
       case 'schedule':
-      case 'map':
         return 'h-[500px]'
       default:
         return 'h-auto min-h-[300px]'
@@ -75,7 +125,7 @@ export function LogisticsModal({ data = defaultLogisticsData }: LogisticsModalPr
           <div className="flex flex-col h-full">
             <div className="flex-1 overflow-y-auto">
               <div className="space-y-4 p-4">
-                <div className="grid gap-4 overflow-y-auto pr-2">
+                <div className="grid gap-4 max-h-[350px] pr-2">
                   {data.schedule.map((item, index) => (
                     <div key={index} className="grid grid-cols-4 items-center gap-4">
                       <span className="font-bold">{item.time}</span>
@@ -116,56 +166,6 @@ export function LogisticsModal({ data = defaultLogisticsData }: LogisticsModalPr
           </div>
         )
       
-      case 'map':
-        return isContentActive ? (
-          <div className="flex flex-col h-full">
-            <div className="flex-1">
-              <div className="p-4 space-y-4">
-                <p className='text-center'>
-                  Toca la imagen para verla en su tamaño original.
-                </p>
-                <div className="relative w-full h-[300px] rounded-xl overflow-hidden border">
-                  <Image
-                        src={data.venueMapUrl}
-                        alt="Mapa del venue"
-                        fill
-                        style={{ objectFit: 'cover' }}
-                        onClick={() => window.open(data.venueMapUrl, '_blank')}
-                    />
-                </div>
-              </div>
-            </div>
-            <div className="p-4 border-t">
-              <Button 
-                variant="secondary"
-                className="w-full flex items-center justify-center"
-                onClick={() => setContentType('main')}
-              >
-                <ArrowLeft className="mr-2 h-4 w-4" />
-                Volver a Logística
-              </Button>
-            </div>
-          </div>
-        ) : (
-          <div className="flex flex-col h-full">
-            <div className="flex-1 flex items-center justify-center p-4">
-              <p className="text-muted-foreground text-center">
-                El mapa del lugar estará disponible más cerca de la fecha del evento.
-              </p>
-            </div>
-            <div className="p-4 border-t">
-              <Button 
-                variant="secondary"
-                className="w-full flex items-center justify-center"
-                onClick={() => setContentType('main')}
-              >
-                <ArrowLeft className="mr-2 h-4 w-4" />
-                Volver a Logística
-              </Button>
-            </div>
-          </div>
-        )
-      
       default:
         return (
           <div className="space-y-4 p-4">
@@ -190,7 +190,7 @@ export function LogisticsModal({ data = defaultLogisticsData }: LogisticsModalPr
             <Button 
               variant="secondary"
               className="w-full flex items-center justify-center"
-              onClick={() => setContentType('map')}
+              onClick={handleShowMap}
             >
               <Map className="mr-2 h-4 w-4" />
               Mapa del lugar
@@ -200,33 +200,31 @@ export function LogisticsModal({ data = defaultLogisticsData }: LogisticsModalPr
     }
   }
 
-  const getTitle = () => {
-    switch (contentType) {
-      case 'schedule':
-        return "Cronograma del Evento"
-      case 'map':
-        return "Mapa del Lugar"
-      default:
-        return "Logística del Evento"
-    }
-  }
-
   return (
-    <Dialog open={isOpen} onOpenChange={handleOpenChange}>
-      <DialogTrigger asChild>
-        <Button variant="primary" className="w-full flex items-center justify-center">
-          <Route className="mr-2 h-4 w-4" /> Logística
-        </Button>
-      </DialogTrigger>
-      <DialogContent className={`sm:max-w-[425px] ${getDialogHeight()} flex flex-col`}>
-        <DialogHeader>
-          <DialogTitle>{getTitle()}</DialogTitle>
-        </DialogHeader>
+    <>
+      <Dialog open={isOpen} onOpenChange={handleOpenChange}>
+        <DialogTrigger asChild>
+          <Button variant="primary" className="w-full flex items-center justify-center">
+            <Route className="mr-2 h-4 w-4" /> Logística
+          </Button>
+        </DialogTrigger>
+        <DialogContent className={`sm:max-w-[425px] ${getDialogHeight()} flex flex-col`}>
+          <DialogHeader>
+            <DialogTitle>{contentType === 'schedule' ? "Cronograma del Evento" : "Logística del Evento"}</DialogTitle>
+          </DialogHeader>
 
-        <div className="flex-1 overflow-hidden">
-          {renderContent()}
-        </div>
-      </DialogContent>
-    </Dialog>
+          <div className="flex-1 overflow-hidden">
+            {renderContent()}
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      <MapModal 
+        isOpen={showMap}
+        onClose={() => setShowMap(false)}
+        imageUrl={data.venueMapUrl}
+        onReturn={handleReturnToLogistics}
+      />
+    </>
   )
 } 

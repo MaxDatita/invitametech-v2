@@ -1,5 +1,5 @@
-import { InvitacionDigitalComponent } from "@/components/invitacion-digital"
+import { InvitacionDigitalComponent } from '@/components/invitacion-digital'
 
-export default function Page() {
+export default function Home() {
   return <InvitacionDigitalComponent />
-}
+} 
