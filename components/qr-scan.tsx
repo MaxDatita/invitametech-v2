@@ -61,6 +61,21 @@ const QRScanner = () => {
       showTorchButtonIfSupported: true,
       showZoomSliderIfSupported: true,
       defaultZoomValueIfSupported: 2,
+      html5qrcode: {
+        formatsToSupport: ["qr_code"],
+        useBarCodeDetectorIfSupported: true
+      },
+      texts: {
+        camera: "Cámara",
+        torch: "Flash",
+        torchOn: "Apagar Flash",
+        torchOff: "Encender Flash",
+        selectCamera: "Seleccionar Cámara",
+        closeCamera: "Cerrar Cámara",
+        startScanning: "Iniciar Escaneo",
+        stopScanning: "Detener Escaneo",
+        zoom: "Zoom",
+      }
     };
 
     scannerRef.current = new Html5QrcodeScanner("reader", config, false);
@@ -103,6 +118,53 @@ const QRScanner = () => {
       }
     };
   }, [hasPermission, isScanning]);
+
+  useEffect(() => {
+    if (isScanning) {
+      const style = document.createElement('style');
+      style.textContent = `
+        #reader__scan_region {
+          background: white !important;
+          border-radius: 0.75rem !important;
+        }
+        #reader__scan_region > img {
+          display: none !important;
+        }
+        #reader__dashboard {
+          background: transparent !important;
+          border: none !important;
+          margin-top: 1rem !important;
+        }
+        #reader__dashboard_section {
+          padding: 0 !important;
+        }
+        #reader__dashboard_section_swaplink {
+          color: theme('colors.purple.700') !important;
+          text-decoration: none !important;
+        }
+        #reader__dashboard_section_csr button {
+          background: theme('colors.purple.600') !important;
+          color: white !important;
+          border: none !important;
+          padding: 0.5rem 1rem !important;
+          border-radius: 0.5rem !important;
+          font-weight: 500 !important;
+        }
+        select {
+          background: white !important;
+          border: 1px solid theme('colors.purple.200') !important;
+          border-radius: 0.5rem !important;
+          padding: 0.5rem !important;
+          color: theme('colors.gray.700') !important;
+        }
+      `;
+      document.head.appendChild(style);
+
+      return () => {
+        document.head.removeChild(style);
+      };
+    }
+  }, [isScanning]);
 
   const handleReset = () => {
     setScanResult(null);
