@@ -5,14 +5,14 @@ import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
-import { MapPin, Clock, MessageSquare, MailPlus, UserCheck, Image as ImageIcon } from 'lucide-react'
+import { MessageSquare, MailPlus, Image as ImageIcon } from 'lucide-react'
 import Image from 'next/image'
 import { useQuery, useInfiniteQuery } from '@tanstack/react-query';
-import { toast } from 'sonner'
 import { theme } from '@/config/theme';
 import { StyledDialog } from "@/components/ui/styled-dialog"
 import { MenuModal } from "@/components/ui/menu-modal"
 import { LogisticsModal } from "@/components/ui/logistics-modal"
+import { TicketsModal } from "@/components/ui/tickets-modal"
 
 
 const gradientColors = [
@@ -101,14 +101,6 @@ export function InvitacionDigitalComponent() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isMessageDialogOpen, setIsMessageDialogOpen] = useState(false);
   const pageSize = 20;
-  const [asistencia, setAsistencia] = useState({
-    nombre: '',
-    acompanantes: 0,
-    nota: ''
-  });
-  const [isSubmittingAsistencia, setIsSubmittingAsistencia] = useState(false);
-  const [hasConfirmed, setHasConfirmed] = useState(false);
-  const [isAsistenciaDialogOpen, setIsAsistenciaDialogOpen] = useState(false);
   const [showUpdateButton, setShowUpdateButton] = useState(false);
   const [selectedTab, setSelectedTab] = useState<'bebidas' | 'comidas'>('bebidas');
 
@@ -250,51 +242,6 @@ export function InvitacionDigitalComponent() {
       setIsSubmitting(false);
     }
   };
-
-  const handleSubmitAsistencia = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!asistencia.nombre) return;
-
-    setIsSubmittingAsistencia(true);
-    try {
-      const now = new Date();
-      const fecha = now.toLocaleString('es-ES', {
-        day: '2-digit',
-        month: '2-digit',
-        year: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit',
-      });
-
-      const response = await fetch('/api/asistencia', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          fecha,
-          ...asistencia
-        }),
-      });
-
-      if (!response.ok) throw new Error('Error al confirmar asistencia');
-
-      toast.success('¡Gracias por confirmar tu asistencia!');
-      setAsistencia({ nombre: '', acompanantes: 0, nota: '' });
-      setHasConfirmed(true);
-      localStorage.setItem('asistenciaConfirmada', 'true');
-      setIsAsistenciaDialogOpen(false);
-    } catch (error) {
-      console.error('Error:', error);
-      toast.error('Error al confirmar asistencia');
-    } finally {
-      setIsSubmittingAsistencia(false);
-    }
-  };
-
-  useEffect(() => {
-    setHasConfirmed(localStorage.getItem('asistenciaConfirmada') === 'true');
-  }, []);
 
   const handleUpdate = () => {
     setShowUpdateButton(false);
@@ -479,74 +426,7 @@ export function InvitacionDigitalComponent() {
             </DialogContent>
           </Dialog>
           {isRsvpActive && (
-            <Dialog open={isAsistenciaDialogOpen} onOpenChange={setIsAsistenciaDialogOpen}>
-              <DialogTrigger asChild>
-                <Button 
-                  variant="primary" 
-                  className={`col-span-2 flex items-center justify-center ${
-                    hasConfirmed ? 'bg-gray-400 cursor-not-allowed' : ''
-                  }`}
-                  disabled={hasConfirmed}
-                >
-                  <UserCheck className="mr-2 h-4 w-4" /> 
-                  {hasConfirmed ? 'Asistencia Confirmada' : 'Asistiré'}
-                </Button>
-              </DialogTrigger>
-              <DialogContent className="sm:max-w-[425px]">
-                <DialogHeader>
-                  <DialogTitle>Confirma tu asistencia</DialogTitle>
-                </DialogHeader>
-                <form onSubmit={handleSubmitAsistencia} className="grid gap-4 py-4">
-                  {isRsvpActive ? (
-                    <>
-                      <Input 
-                        id="name" 
-                        placeholder="Nombre del invitado" 
-                        value={asistencia.nombre}
-                        onChange={(e) => setAsistencia(prev => ({
-                          ...prev,
-                          nombre: e.target.value
-                        }))}
-                        required
-                      />
-                      <div className="space-y-2">
-                        <Input 
-                          id="guests" 
-                          type="number" 
-                          placeholder="Cantidad de acompañantes" 
-                          min="0"
-                          value={asistencia.acompanantes}
-                          onChange={(e) => setAsistencia(prev => ({
-                            ...prev,
-                            acompanantes: parseInt(e.target.value) || 0
-                          }))}
-                        />
-                        <p className="text-sm text-gray-500 italic">
-                          Solo complete este campo si asistirá con acompañantes
-                        </p>
-                      </div>
-                      <Textarea 
-                        placeholder="Nota adicional o restriccions " 
-                        value={asistencia.nota}
-                        onChange={(e) => setAsistencia(prev => ({
-                          ...prev,
-                          nota: e.target.value
-                        }))}
-                      />
-                      <Button 
-                        type="submit"
-                        disabled={isSubmittingAsistencia || !asistencia.nombre}
-                      >
-                        {isSubmittingAsistencia ? 'Confirmando...' : 'Confirmar asistencia'}
-                      </Button>
-                    </>
-                  ) : (
-                    // DINAMICO:  Frase antes de fecha de activación.
-                    <p>Lo sentimos, el período para confirmar asistencia ha terminado.</p>
-                  )}
-                </form>
-              </DialogContent>
-            </Dialog>
+            <TicketsModal />
           )}
         </div>
       </div>

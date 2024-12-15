@@ -218,7 +218,7 @@ const QRScanner = () => {
                 onClick={requestCameraPermission}
                 variant="primary"
               >
-                Permitir acceso a la cámara
+                Permitir acceso
               </Button>
             </div>
           ) : isScanning ? (
