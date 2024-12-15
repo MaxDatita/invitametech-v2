@@ -226,7 +226,7 @@ const QRScanner = () => {
               <p className="body-base text-center mb-4">
                 Escanea el código QR de la invitación
               </p>
-              <div id="reader" className="mx-auto max-w-xl min-h-[400px] rounded-lg overflow-hidden" />
+              <div id="reader" className="mx-auto max-w-xl min-h-[300px] rounded-lg overflow-hidden" />
             </>
           ) : (
             <>
