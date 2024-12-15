@@ -1,6 +1,6 @@
 'use client';
 
-import { Html5QrcodeScanner, Html5QrcodeSupportedFormats } from 'html5-qrcode';
+import { Html5QrcodeScanner, Html5QrcodeSupportedFormats, Html5QrcodeScanType } from 'html5-qrcode';
 import { useEffect, useState, useRef } from 'react';
 import { Button } from "@/components/ui/button"
 
@@ -70,6 +70,10 @@ const QRScanner = () => {
         chooseImage: "Elegir imagen",
         dropImageHere: "Arrastrar imagen aquí",
         zoom: "Zoom"
+      },
+      supportedScanTypes: [Html5QrcodeScanType.SCAN_TYPE_CAMERA],
+      defaultVideoConstraints: {
+        facingMode: { exact: "environment" }
       }
     };
 
@@ -77,10 +81,11 @@ const QRScanner = () => {
       #reader__dashboard {
         background: transparent !important;
         border: none !important;
-        padding: 1rem !important;
+        padding: 0 !important;
       }
       #reader__dashboard_section {
         padding: 0 !important;
+        border: none !important;
       }
       #reader__dashboard_section_csr {
         display: none !important;
@@ -92,12 +97,20 @@ const QRScanner = () => {
         display: none !important;
       }
       #reader__scan_region {
-        background: white !important;
+        background: transparent !important;
+        border: none !important;
         border-radius: 0.75rem !important;
         overflow: hidden !important;
       }
       #reader__scan_region > img {
         display: none !important;
+      }
+      #reader {
+        border: none !important;
+        background: transparent !important;
+      }
+      #reader * {
+        border: none !important;
       }
       #reader__status_text {
         display: none !important;
@@ -105,6 +118,10 @@ const QRScanner = () => {
       #reader__camera_permission_button {
         display: none !important;
       }
+      #reader__filescan_input {
+        display: none !important;
+      }
+      /* Asegurarnos que el botón de flash sea visible */
       #reader__torch_button {
         padding: 0.5rem 1rem !important;
         border-radius: 0.5rem !important;
@@ -116,6 +133,11 @@ const QRScanner = () => {
         transition: background 0.2s !important;
         margin: 0.5rem auto !important;
         display: block !important;
+        position: absolute !important;
+        bottom: 1rem !important;
+        left: 50% !important;
+        transform: translateX(-50%) !important;
+        z-index: 1000 !important;
       }
       #reader__torch_button:hover {
         background: rgb(126 34 206) !important;
