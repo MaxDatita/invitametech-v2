@@ -194,8 +194,12 @@ const QRScanner = () => {
   }, [hasPermission, isScanning]);
 
   const handleReset = () => {
+    if (scannerRef.current) {
+      scannerRef.current.clear();
+      scannerRef.current = null;
+    }
     setScanResult(null);
-    setIsScanning(false);
+    setIsScanning(true);
   };
 
   return (
