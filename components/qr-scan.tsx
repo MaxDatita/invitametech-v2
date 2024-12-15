@@ -64,6 +64,9 @@ const QRScanner = () => {
         #reader {
           border: none !important;
           background: transparent !important;
+          position: relative !important; /* Asegura que los hijos absolutos se posicionen respecto a este contenedor */
+          min-height: 400px !important; /* Garantiza espacio suficiente */
+          overflow: visible !important; /* Permite que los elementos hijos sobresalgan */
         }
 
         #reader__scan_region {
@@ -111,8 +114,8 @@ const QRScanner = () => {
 
     const config = {
       qrbox: {
-        width: 250,
-        height: 250,
+        width: 350,
+        height: 350,
       },
       fps: 10,
       aspectRatio: 1.0,
@@ -221,7 +224,7 @@ const QRScanner = () => {
             </div>
           ) : isScanning ? (
             <>
-              <p className="body-large text-center mb-4">
+              <p className="body-base text-center mb-4">
                 Escanea el código QR de la invitación
               </p>
               <div id="reader" className="mx-auto max-w-xl min-h-[400px] rounded-lg overflow-hidden" />
