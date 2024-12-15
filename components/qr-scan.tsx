@@ -64,9 +64,6 @@ const QRScanner = () => {
         #reader {
           border: none !important;
           background: transparent !important;
-          position: relative !important; /* Asegura que los hijos absolutos se posicionen respecto a este contenedor */
-          min-height: 400px !important; /* Garantiza espacio suficiente */
-          overflow: visible !important; /* Permite que los elementos hijos sobresalgan */
         }
 
         #reader__scan_region {
@@ -82,6 +79,8 @@ const QRScanner = () => {
 
         /* Botón de flash */
         #reader__torch_button {
+          position: fixed !important;
+          z-index: 9999 !important;
           padding: 0.5rem 1rem !important;
           border-radius: 0.5rem !important;
           background: #bf90ee !important;
@@ -114,8 +113,8 @@ const QRScanner = () => {
 
     const config = {
       qrbox: {
-        width: 350,
-        height: 350,
+        width: 250,
+        height: 250,
       },
       fps: 10,
       aspectRatio: 1.0,
