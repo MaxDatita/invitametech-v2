@@ -43,6 +43,72 @@ const QRScanner = () => {
   useEffect(() => {
     if (!hasPermission || !isScanning) return;
 
+    const styleId = "qr-scanner-styles";
+    let existingStyle = document.getElementById(styleId);
+
+    if (!existingStyle) {
+      const style = document.createElement("style");
+      style.id = styleId;
+      style.textContent = `
+        /* Reset y estilos base */
+        #reader__dashboard,
+        #reader__dashboard_section,
+        #reader__dashboard_section_csr,
+        #reader__status_text,
+        #reader__filescan_input,
+        #reader__dashboard_section_swaplink,
+        select {
+          display: none !important;
+        }
+
+        #reader {
+          border: none !important;
+          background: transparent !important;
+        }
+
+        #reader__scan_region {
+          background: transparent !important;
+          border: 2px solid rgba(147, 51, 234, 0.3) !important;
+          border-radius: 0.75rem !important;
+          overflow: hidden !important;
+        }
+
+        #reader__scan_region > img {
+          display: none !important;
+        }
+
+        /* Botón de flash */
+        #reader__torch_button {
+          padding: 0.5rem 1rem !important;
+          border-radius: 0.5rem !important;
+          background: #bf90ee !important;
+          color: white !important;
+          font-size: 0.875rem !important;
+          font-weight: 500 !important;
+          position: absolute !important;
+          bottom: 1rem !important;
+          left: 50% !important;
+          transform: translateX(-50%) !important;
+          z-index: 1000 !important;
+          transition: all 0.2s ease !important;
+          border: none !important;
+          cursor: pointer !important;
+          box-shadow: 0 2px 4px rgba(0,0,0,0.1) !important;
+        }
+
+        #reader__torch_button:hover {
+          background: rgb(126 34 206) !important;
+          transform: translateX(-50%) translateY(-2px) !important;
+        }
+
+        #reader__torch_button:active {
+          transform: translateX(-50%) translateY(0) !important;
+        }
+      `;
+      document.head.appendChild(style);
+      existingStyle = style;
+    }
+
     const config = {
       qrbox: {
         width: 250,
@@ -76,80 +142,6 @@ const QRScanner = () => {
         facingMode: { exact: "environment" }
       }
     };
-
-    const styleContent = `
-      #reader__dashboard {
-        background: transparent !important;
-        border: none !important;
-        padding: 0 !important;
-      }
-      #reader__dashboard_section {
-        padding: 0 !important;
-        border: none !important;
-      }
-      #reader__dashboard_section_csr {
-        display: none !important;
-      }
-      #reader__dashboard_section_swaplink {
-        display: none !important;
-      }
-      select {
-        display: none !important;
-      }
-      #reader__scan_region {
-        background: transparent !important;
-        border: none !important;
-        border-radius: 0.75rem !important;
-        overflow: hidden !important;
-      }
-      #reader__scan_region > img {
-        display: none !important;
-      }
-      #reader {
-        border: none !important;
-        background: transparent !important;
-      }
-      #reader * {
-        border: none !important;
-      }
-      #reader__status_text {
-        display: none !important;
-      }
-      #reader__camera_permission_button {
-        display: none !important;
-      }
-      #reader__filescan_input {
-        display: none !important;
-      }
-      /* Asegurarnos que el botón de flash sea visible */
-      #reader__torch_button {
-        padding: 0.5rem 1rem !important;
-        border-radius: 0.5rem !important;
-        background: #bf90ee !important;
-        color: white !important;
-        border: none !important;
-        font-size: 0.875rem !important;
-        font-weight: 500 !important;
-        transition: background 0.2s !important;
-        margin: 0.5rem auto !important;
-        display: block !important;
-        position: absolute !important;
-        bottom: 1rem !important;
-        left: 50% !important;
-        transform: translateX(-50%) !important;
-        z-index: 1000 !important;
-      }
-      #reader__torch_button:hover {
-        background: rgb(126 34 206) !important;
-      }
-      .html5-qrcode-element {
-        margin-bottom: 0.5rem !important;
-      }
-    `;
-
-    const style = document.createElement('style');
-    style.textContent = styleContent;
-    document.head.appendChild(style);
 
     scannerRef.current = new Html5QrcodeScanner("reader", config, false);
 
@@ -186,7 +178,9 @@ const QRScanner = () => {
     scannerRef.current.render(onScanSuccess, onScanError);
 
     return () => {
-      document.head.removeChild(style);
+      if (existingStyle && document.head.contains(existingStyle)) {
+        document.head.removeChild(existingStyle);
+      }
       if (scannerRef.current) {
         scannerRef.current.clear();
       }
