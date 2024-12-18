@@ -1,5 +1,7 @@
 import { NextResponse } from 'next/server';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
@@ -8,9 +10,6 @@ export async function GET(request: Request) {
     if (!code) {
       throw new Error('No authorization code provided');
     }
-
-    // Aquí procesarías el código de autorización
-    // y guardarías el token de acceso del vendedor
 
     return NextResponse.redirect(`${process.env.NEXT_PUBLIC_BASE_URL}/mercadopagoauth/success`);
   } catch (error) {
