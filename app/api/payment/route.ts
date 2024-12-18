@@ -4,27 +4,27 @@ import { createPreference } from '@/lib/mercadopago';
 export async function POST(request: Request) {
   try {
     const body = await request.json();
+    const sellerToken = process.env.SELLER_ACCESS_TOKEN;
     
     const preference = await createPreference({
       items: [{
         id: body.ticketType,
-        title: body.quantity > 1
-        ? `Ticket ${body.title} x ${body.quantity}`
-        : `Ticket ${body.title}`,
+        title: body.quantity === 1 
+          ? `Ticket ${body.title}`
+          : `Ticket ${body.title} x${body.quantity}`,
         unit_price: body.unitPrice,
         quantity: body.quantity,
       }],
       payer: {
         name: body.name,
         email: body.email,
-      }
+      },
+      seller_access_token: sellerToken,
     });
 
     return NextResponse.json({
       preferenceId: preference.id,
       init_point: preference.init_point,
-      // Usar sandbox_init_point para pruebas
-      // init_point: preference.sandbox_init_point 
     });
   } catch (error) {
     console.error('Payment error:', error);
