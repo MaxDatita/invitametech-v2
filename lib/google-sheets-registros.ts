@@ -121,3 +121,53 @@ export async function addInvitado(data: {
     throw error;
   }
 } 
+
+// Guardar y obtener el token del vendedor
+export async function saveSellerToken(token: string): Promise<void> {
+  try {
+    const jwt = new JWT({
+      email: process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
+      key: process.env.GOOGLE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
+      scopes: ['https://www.googleapis.com/auth/spreadsheets'],
+    });
+
+    const doc = new GoogleSpreadsheet(process.env.GOOGLE_SHEET_ID!, jwt);
+    await doc.loadInfo();
+    
+    const sheet = doc.sheetsByTitle['Datos'];
+    if (!sheet) {
+      throw new Error('No se encontró la hoja "Datos"');
+    }
+
+    await sheet.loadCells('C2');
+    const tokenCell = sheet.getCell(1, 2); // C2 en coordenadas 0-based
+    tokenCell.value = token;
+    await sheet.saveUpdatedCells();
+  } catch (error) {
+    console.error('Error saving seller token:', error);
+    throw error;
+  }
+}
+
+export async function getSellerToken(): Promise<string | null> {
+  try {
+    const jwt = new JWT({
+      email: process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
+      key: process.env.GOOGLE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
+      scopes: ['https://www.googleapis.com/auth/spreadsheets'],
+    });
+
+    const doc = new GoogleSpreadsheet(process.env.GOOGLE_SHEET_ID!, jwt);
+    await doc.loadInfo();
+    
+    const sheet = doc.sheetsByTitle['Datos'];
+    if (!sheet) return null;
+
+    await sheet.loadCells('C2');
+    const tokenCell = sheet.getCell(1, 2); // C2 en coordenadas 0-based
+    return tokenCell.value?.toString() || null;
+  } catch (error) {
+    console.error('Error getting seller token:', error);
+    return null;
+  }
+} 

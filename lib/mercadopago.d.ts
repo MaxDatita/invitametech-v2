@@ -33,27 +33,21 @@ declare module 'mercadopago' {
     sandbox_init_point: string;
   }
 
-  interface OAuthCreateData {
-    body: {
-      grant_type: string;
-      code: string;
-      client_id: string;
-      client_secret: string;
-      redirect_uri: string;
-    }
-  }
-
   interface OAuthRequest {
-    grant_type: 'authorization_code';
     code: string;
     client_id: string;
     client_secret: string;
     redirect_uri: string;
+    grant_type: 'authorization_code';
+  }
+
+  interface OAuthCreateData {
+    body: OAuthRequest;
   }
 
   class OAuth {
     constructor(client: MercadoPagoConfig);
-    create(data: { body: OAuthRequest }): Promise<{
+    create(data: OAuthCreateData): Promise<{
       access_token: string;
       user_id: number;
       refresh_token: string;
