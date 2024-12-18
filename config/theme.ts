@@ -63,6 +63,5 @@ export const theme = {
       carousel: ['/img1.webp', '/img2.webp', '/img3.webp'],
       video: '/vid1.mp4',
     },
-    ticketsLink: "https://tu-url-de-compra-de-tickets.com",
   },
 };

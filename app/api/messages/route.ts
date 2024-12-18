@@ -1,4 +1,4 @@
-import { getMessages } from '@/lib/google-sheets';
+import { getMessages } from '@/lib/google-sheets-registros';
 import { NextResponse } from 'next/server';
 import { GoogleSpreadsheet } from 'google-spreadsheet';
 import { JWT } from 'google-auth-library';

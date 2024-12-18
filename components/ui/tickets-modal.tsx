@@ -16,13 +16,13 @@ interface TicketType {
 
 const ticketTypes: TicketType[] = [
   {
-    id: 'regular',
+    id: 'Regular',
     name: 'Regular',
     price: 1000,
     description: 'Acceso general al evento'
   },
   {
-    id: 'vip',
+    id: 'VIP',
     name: 'VIP',
     price: 2000,
     description: 'Acceso VIP con beneficios exclusivos'
@@ -30,7 +30,7 @@ const ticketTypes: TicketType[] = [
 ]
 
 export function TicketsModal() {
-  const [selectedTicket, setSelectedTicket] = useState<string>('regular')
+  const [selectedTicket, setSelectedTicket] = useState<string>('Regular')
   const [quantity, setQuantity] = useState<number>(1)
   const [buyerInfo, setBuyerInfo] = useState({
     name: '',
@@ -48,14 +48,34 @@ export function TicketsModal() {
       return
     }
 
+
     setIsSubmitting(true)
     try {
-      // Aquí irá la lógica de compra
-      // await purchaseTickets({ ...buyerInfo, ticketType: selectedTicket, quantity })
-      toast.success('¡Compra exitosa! Revisa tu email para ver los tickets')
+      const response = await fetch('/api/payment', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          ticketType: selectedTicket,
+          quantity,
+          unitPrice: selectedTicketType?.price || 0,
+          name: buyerInfo.name,
+          email: buyerInfo.email,
+          title: selectedTicketType?.name,
+        }),
+      });
+
+      if (!response.ok) throw new Error('Error creating payment');
+      
+      const data = await response.json();
+      
+      // Redirigir al checkout de MercadoPago
+      window.location.href = data.init_point;
+      
     } catch (error) {
       console.error('Error:', error)
-      toast.error('Error al procesar la compra')
+      toast.error('Error al procesar el pago')
     } finally {
       setIsSubmitting(false)
     }

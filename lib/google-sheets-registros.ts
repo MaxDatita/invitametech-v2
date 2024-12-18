@@ -13,12 +13,6 @@ interface MessagesResponse {
   total: number;
 }
 
-interface Invitado {
-  fecha: string;
-  nombre: string;
-  acompanantes: number;
-  nota?: string;
-}
 
 export async function getMessages(
   page: number = 1, 
@@ -33,7 +27,6 @@ export async function getMessages(
       scopes: ['https://www.googleapis.com/auth/spreadsheets'],
     });
 
-    console.log('JWT creado, intentando cargar documento...');
 
     const doc = new GoogleSpreadsheet(process.env.GOOGLE_SHEET_ID!, jwt);
     await doc.loadInfo();
@@ -74,10 +67,17 @@ export async function getMessages(
     };
   }
 
-export async function guardarAsistencia(invitado: Invitado): Promise<boolean> {
+
+// Registro de invitados con fecha, nombre, email y tipo de ticket
+export async function addInvitado(data: {
+  nombre: string;
+  email: string;
+  tipoTicket: string;
+  quantity?: number;
+}) {
   try {
     const jwt = new JWT({
-      email: process.env.GOOGLE_CLIENT_EMAIL,
+      email: process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
       key: process.env.GOOGLE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
       scopes: ['https://www.googleapis.com/auth/spreadsheets'],
     });
@@ -90,18 +90,34 @@ export async function guardarAsistencia(invitado: Invitado): Promise<boolean> {
       throw new Error('No se encontró la hoja "Invitados"');
     }
 
-    const cantidadTotal = invitado.acompanantes === 0 ? 1 : invitado.acompanantes + 1;
+    const quantity = parseInt(String(data.quantity) || '1');
 
-    await sheet.addRow({
-      'Fecha': invitado.fecha,
-      'Invitado': invitado.nombre,
-      'Cantidad': cantidadTotal,
-      'Nota': invitado.nota || ''
-    });
+    // Crear todas las filas de una vez
+    const rows = [];
+    for (let i = 0; i < quantity; i++) {
+      const now = new Date();
+      const fecha = now.toLocaleString('es-ES', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+      });
+
+      rows.push({
+        'Fecha': fecha,
+        'Invitado': data.nombre,
+        'Email': data.email,
+        'Ticket': data.tipoTicket.split('(')[0].trim(),
+      });
+    }
+
+    // Agregar todas las filas en una sola operación
+    await sheet.addRows(rows);
 
     return true;
   } catch (error) {
-    console.error('Error en guardarAsistencia:', error);
-    return false;
+    console.error('Error adding invitado:', error);
+    throw error;
   }
 } 
