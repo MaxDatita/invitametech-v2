@@ -1,11 +1,5 @@
 import { MercadoPagoConfig, Preference } from "mercadopago";
-
-// Configurar MercadoPago
-const client = new MercadoPagoConfig({ 
-  accessToken: process.env.MERCADOPAGO_ACCESS_TOKEN! 
-});
-
-const preference = new Preference(client);
+import { getSellerToken } from '@/lib/google-sheets-registros';
 
 export interface CreatePreferenceData {
   items: Array<{
@@ -18,14 +12,19 @@ export interface CreatePreferenceData {
     name: string;
     email: string;
   };
-  seller_access_token?: string; // Token del vendedor
 }
 
 export async function createPreference(data: CreatePreferenceData) {
   try {
-    // Usar el token del vendedor si está disponible
+    // Obtener el token del vendedor de Google Sheets
+    const sellerToken = await getSellerToken();
+    if (!sellerToken) {
+      throw new Error('No seller token found');
+    }
+
+    // Crear cliente con el token del vendedor
     const client = new MercadoPagoConfig({ 
-      accessToken: data.seller_access_token || process.env.MERCADOPAGO_ACCESS_TOKEN! 
+      accessToken: sellerToken 
     });
     
     const preference = new Preference(client);
