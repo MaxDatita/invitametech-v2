@@ -29,6 +29,15 @@ export async function createPreference(data: CreatePreferenceData) {
     
     const preference = new Preference(client);
 
+    // Calcular el total de la operación
+    const totalAmount = data.items.reduce((total, item) => 
+      total + (item.unit_price * item.quantity), 0
+    );
+
+    // Calcular el fee como un porcentaje (por ejemplo, 10%)
+    const FEE_PERCENTAGE = 10;
+    const marketplace_fee = (totalAmount * FEE_PERCENTAGE) / 100;
+
     const preferenceData = {
       items: data.items,
       payer: data.payer,
@@ -38,7 +47,7 @@ export async function createPreference(data: CreatePreferenceData) {
         pending: `${process.env.NEXT_PUBLIC_BASE_URL}/payment/pending`,
       },
       auto_return: "approved",
-      marketplace_fee: 5, // Fee fijo de 5 ARS
+      marketplace_fee, // Fee calculado como porcentaje
     };
 
     const response = await preference.create({ body: preferenceData });

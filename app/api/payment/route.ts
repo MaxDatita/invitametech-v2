@@ -4,7 +4,6 @@ import { createPreference } from '@/lib/mercadopago';
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const sellerToken = process.env.SELLER_ACCESS_TOKEN;
     
     const preference = await createPreference({
       items: [{
@@ -18,8 +17,7 @@ export async function POST(request: Request) {
       payer: {
         name: body.name,
         email: body.email,
-      },
-      seller_access_token: sellerToken,
+      }
     });
 
     return NextResponse.json({
