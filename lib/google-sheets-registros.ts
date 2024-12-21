@@ -76,32 +76,34 @@ export async function addInvitado(data: {
   quantity?: number;
 }) {
   try {
-    console.log('Starting addInvitado...');
+    console.log('Starting addInvitado with data:', data);
     const jwt = new JWT({
       email: process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
       key: process.env.GOOGLE_PRIVATE_KEY?.split(String.raw`\n`).join('\n'),
       scopes: ['https://www.googleapis.com/auth/spreadsheets'],
     });
-    console.log('JWT created, trying to load document...');
+    console.log('JWT created successfully');
 
     const doc = new GoogleSpreadsheet(process.env.GOOGLE_SHEET_ID!, jwt);
     await doc.loadInfo();
+    console.log('Document loaded successfully');
     
     const sheet = doc.sheetsByTitle['Invitados'];
     if (!sheet) {
       throw new Error('No se encontró la hoja "Invitados"');
     }
+    console.log('Sheet found successfully');
 
     // Obtener todas las filas y encontrar la última fila con datos en la columna A
     const rows = await sheet.getRows();
-    const lastRowIndex = rows.findIndex((row) => !row.get('Fecha'));
-
-    const startRow = lastRowIndex === -1 ? rows.length + 2 : lastRowIndex + 2; // Fila vacía
+    console.log('Current rows count:', rows.length);
 
     const quantity = parseInt(String(data.quantity) || '1', 10);
+    console.log('Processing quantity:', quantity);
 
     for (let i = 0; i < quantity; i++) {
-      // Crear fecha con zona horaria de Argentina
+      console.log(`Processing row ${i + 1} of ${quantity}`);
+      
       const now = new Date();
       now.setHours(now.getHours() - 3); // Ajusta el desfase horario (-3 para Argentina)
       const argentinaTime = new Intl.DateTimeFormat('es-AR', {
@@ -114,15 +116,22 @@ export async function addInvitado(data: {
         hour12: false,
       }).format(now);
 
-      // Insertar datos en la siguiente fila disponible
-      const newRowIndex = startRow + i;
-      const row = rows[newRowIndex] || (await sheet.addRow({}));
+      // Crear nueva fila con datos
+      const rowData = {
+        'Fecha': argentinaTime,
+        'Invitado': data.nombre,
+        'Email': data.email,
+        'Ticket': data.tipoTicket.split('(')[0].trim(),
+      };
+      console.log('Adding row with data:', rowData);
 
-      row.set('Fecha', argentinaTime);
-      row.set('Invitado', data.nombre);
-      row.set('Email', data.email);
-      row.set('Ticket', data.tipoTicket.split('(')[0].trim());
-      await row.save();
+      try {
+        await sheet.addRow(rowData);
+        console.log('Row added successfully');
+      } catch (rowError) {
+        console.error('Error adding individual row:', rowError);
+        throw rowError;
+      }
     }
 
     return true;
