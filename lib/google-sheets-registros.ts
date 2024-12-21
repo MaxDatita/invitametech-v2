@@ -23,7 +23,7 @@ export async function getMessages(
 
     const jwt = new JWT({
       email: process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
-      key: process.env.GOOGLE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
+      key: process.env.GOOGLE_PRIVATE_KEY?.split(String.raw`\n`).join('\n'),
       scopes: ['https://www.googleapis.com/auth/spreadsheets'],
     });
 
@@ -76,11 +76,13 @@ export async function addInvitado(data: {
   quantity?: number;
 }) {
   try {
+    console.log('Starting addInvitado...');
     const jwt = new JWT({
       email: process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
-      key: process.env.GOOGLE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
+      key: process.env.GOOGLE_PRIVATE_KEY?.split(String.raw`\n`).join('\n'),
       scopes: ['https://www.googleapis.com/auth/spreadsheets'],
     });
+    console.log('JWT created, trying to load document...');
 
     const doc = new GoogleSpreadsheet(process.env.GOOGLE_SHEET_ID!, jwt);
     await doc.loadInfo();
@@ -125,7 +127,7 @@ export async function addInvitado(data: {
 
     return true;
   } catch (error) {
-    console.error('Error adding invitado:', error);
+    console.error('Error in addInvitado:', error);
     throw error;
   }
 } 
@@ -135,7 +137,7 @@ export async function saveSellerToken(token: string): Promise<void> {
   try {
     const jwt = new JWT({
       email: process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
-      key: process.env.GOOGLE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
+      key: process.env.GOOGLE_PRIVATE_KEY?.split(String.raw`\n`).join('\n'),
       scopes: ['https://www.googleapis.com/auth/spreadsheets'],
     });
 
@@ -161,7 +163,7 @@ export async function getSellerToken(): Promise<string | null> {
   try {
     const jwt = new JWT({
       email: process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
-      key: process.env.GOOGLE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
+      key: process.env.GOOGLE_PRIVATE_KEY?.split(String.raw`\n`).join('\n'),
       scopes: ['https://www.googleapis.com/auth/spreadsheets'],
     });
 
