@@ -53,7 +53,7 @@ export const theme = {
   dates: {
     event: '2024-12-24T10:21:30', // Fecha del evento
     contentActivation: '2024-10-01T00:00:00', // Fecha de activación del contenido
-    rsvpDeadline: '2024-12-20T00:00:00', // Fecha límite para confirmar asistencia
+    rsvpDeadline: '2024-12-25T00:00:00', // Fecha límite para confirmar asistencia
   },
 
   // Enlaces y recursos

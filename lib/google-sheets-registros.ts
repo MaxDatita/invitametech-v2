@@ -90,30 +90,38 @@ export async function addInvitado(data: {
       throw new Error('No se encontró la hoja "Invitados"');
     }
 
-    const quantity = parseInt(String(data.quantity) || '1');
+    // Obtener todas las filas y encontrar la última fila con datos en la columna A
+    const rows = await sheet.getRows();
+    const lastRowIndex = rows.findIndex((row) => !row.get('Fecha'));
 
-    // Crear todas las filas de una vez
-    const rows = [];
+    const startRow = lastRowIndex === -1 ? rows.length + 2 : lastRowIndex + 2; // Fila vacía
+
+    const quantity = parseInt(String(data.quantity) || '1', 10);
+
     for (let i = 0; i < quantity; i++) {
+      // Crear fecha con zona horaria de Argentina
       const now = new Date();
-      const fecha = now.toLocaleString('es-ES', {
-        day: '2-digit',
-        month: '2-digit',
+      now.setHours(now.getHours() - 3); // Ajusta el desfase horario (-3 para Argentina)
+      const argentinaTime = new Intl.DateTimeFormat('es-AR', {
+        timeZone: 'America/Argentina/Buenos_Aires',
         year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
         hour: '2-digit',
         minute: '2-digit',
-      });
+        hour12: false,
+      }).format(now);
 
-      rows.push({
-        'Fecha': fecha,
-        'Invitado': data.nombre,
-        'Email': data.email,
-        'Ticket': data.tipoTicket.split('(')[0].trim(),
-      });
+      // Insertar datos en la siguiente fila disponible
+      const newRowIndex = startRow + i;
+      const row = rows[newRowIndex] || (await sheet.addRow({}));
+
+      row.set('Fecha', argentinaTime);
+      row.set('Invitado', data.nombre);
+      row.set('Email', data.email);
+      row.set('Ticket', data.tipoTicket.split('(')[0].trim());
+      await row.save();
     }
-
-    // Agregar todas las filas en una sola operación
-    await sheet.addRows(rows);
 
     return true;
   } catch (error) {
