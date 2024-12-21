@@ -4,7 +4,6 @@ import { addInvitado } from '@/lib/google-sheets-registros';
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    console.log('Payment success received body:', body);
     
     if (!body.nombre || !body.email || !body.tipoTicket) {
       throw new Error('Missing required fields');
