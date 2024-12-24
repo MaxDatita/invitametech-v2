@@ -53,7 +53,7 @@ function SuccessContent() {
       <h1 className="heading-h1 mb-4">¡Pago Exitoso!</h1>
       <div className="flex flex-col items-center gap-4">
         <Loader2 className="animate-spin heading-h1 h-12 w-12" />
-        <p className="body-base">Procesando tu compra...</p>
+        <p className="body-base">Estamos procesando tu compra. Recibirás un email con los tickets.</p>
       </div>
     </div>
   );
