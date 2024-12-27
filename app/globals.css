@@ -10,16 +10,18 @@
   }
 }
 
+/* Gradiente de fondo */
 @layer components {
   .bg-gradient-animation {
     @apply min-h-screen;
-    background-color: hsla(259.4117647058824, 100%, 63%, 1);
+    background-color: hsla(359.00000000000006, 100%, 50%, 1);
     background-image: 
-      radial-gradient(circle at 15% 85%, hsla(318, 80%, 97%, 1) 19%, transparent 84%),
-      radial-gradient(circle at 31% 1%, hsla(161.47058823529412, 99%, 84%, 1) 12%, transparent 85%),
-      radial-gradient(circle at 88% 87%, hsla(163, 90%, 78%, 1) 3.64%, transparent 75.21%),
-      radial-gradient(circle at 30% 27%, hsla(314, 91%, 59%, 1) 14%, transparent 90%);
-    background-blend-mode: normal, normal, normal, normal;
+      radial-gradient(circle at 0% 99%, hsla(255.44117647058818, 76%, 15%, 1) 0%, transparent 67%), 
+      radial-gradient(circle at 46% 94%, hsla(240.88235294117646, 79%, 27%, 1) 0%, transparent 81%), 
+      radial-gradient(circle at 93% 95%, hsla(231.61764705882354, 100%, 23%, 1) 0%, transparent 66%), 
+      radial-gradient(circle at 89% 8%, hsla(206, 100%, 9%, 1) 0%, transparent 150%), 
+      radial-gradient(circle at 89% 8%, hsla(206, 100%, 9%, 1) 0%, transparent 150%);
+    background-blend-mode: normal, normal, normal, normal, normal;
   }
 
   .animate-bounce {
@@ -52,7 +54,7 @@
   }
 
   .heading-h2 {
-    @apply text-2xl font-semibold text-purple-400 text-center font-secondary;
+    @apply text-2xl font-semibold text-white text-center font-secondary;
   }
 
   /* Body text */
@@ -61,7 +63,7 @@
   }
 
   .body-base {
-    @apply text-base text-gray-600;
+    @apply text-base text-white;
   }
 
   .body-small {
@@ -90,6 +92,61 @@
   
   .button-icon {
     @apply mr-2 h-4 w-4;
+  }
+
+  /* Title Image */
+  .title-image {
+    @apply mx-auto mb-6;
+    width: var(--title-width, 300px);
+    height: var(--title-height, auto);
+    object-fit: contain;
+  }
+
+  .title-image-container {
+    @apply flex justify-center items-center;
+    margin: var(--title-margin, 2rem 0);
+  }
+
+  /* Countdown styles */
+  .countdown-container {
+    @apply grid grid-cols-4 gap-2 text-center mb-6 bg-white/10 p-4 rounded-xl backdrop-blur-sm;
+  }
+
+  .countdown-item {
+    @apply flex flex-col items-center justify-center p-2 rounded-lg bg-pink-500/70 backdrop-blur-sm;
+  }
+
+  .countdown-number {
+    @apply text-2xl font-bold text-white font-secondary;
+  }
+
+  .countdown-label {
+    @apply text-sm text-white/80 font-primary;
+  }
+
+  .countdown-message {
+    @apply body-large text-center mb-2 bg-gradient-to-r from-pink-400 to-pink-600 
+    text-white p-4 rounded-xl backdrop-blur-sm;
+  }
+
+  /* Live indicator */
+  .live-indicator {
+    @apply fixed top-4 right-4 flex items-center gap-2 bg-white 
+    text-black px-4 py-2 rounded-full backdrop-blur-sm;
+  }
+
+  .live-dot {
+    @apply w-2 h-2 bg-red-500 rounded-full;
+    animation: pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: .3;
+    }
   }
 
 

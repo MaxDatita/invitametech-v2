@@ -51,7 +51,7 @@ export const theme = {
 
   // Configuración de fechas importantes
   dates: {
-    event: '2024-12-30T10:21:30', // Fecha del evento
+    event: '2024-11-30T10:21:30', // Fecha del evento
     contentActivation: '2024-10-01T00:00:00', // Fecha de activación del contenido
     rsvpDeadline: '2024-12-29T00:00:00', // Fecha límite para confirmar asistencia
   },
@@ -62,6 +62,16 @@ export const theme = {
     images: {
       carousel: ['/img1.webp', '/img2.webp', '/img3.webp'],
       video: '/vid1.mp4',
+      title: '/eventest.webp'
     },
   },
+
+  // // Configuración del título
+  // title: {
+  //   image: {
+  //     width: '300px',
+  //     height: 'auto',
+      
+  //   }
+  // }
 };

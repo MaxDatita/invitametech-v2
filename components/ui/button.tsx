@@ -10,8 +10,8 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
 }
 
 const buttonVariants = {
-  primary: "bg-purple-400 hover:bg-purple-700 text-white border-transparent rounded-2xl",
-  secondary: "bg-white hover:bg-gray-100 text-purple-600 border border-purple-600 rounded-2xl",
+  primary: "bg-pink-500 hover:bg-pink-500 text-white border-transparent rounded-2xl",
+  secondary: "bg-white hover:bg-white text-bg-pink-500 border border-pink-500 rounded-2xl",
   accent: "bg-pink-600 hover:bg-pink-700 text-white border-transparent rounded-2xl"
 }
 

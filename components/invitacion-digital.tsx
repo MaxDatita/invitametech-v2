@@ -251,6 +251,13 @@ export function InvitacionDigitalComponent() {
   //Comienzo la invitacion digital
   return (
     <div className="min-h-screen pt-6 pb-6 pl-6 pr-6 bg-gradient-animation">
+      {eventStarted && (
+        <div className="live-indicator">
+          <div className="live-dot"></div>
+          <span className="text-sm font-bold">LIVE</span>
+        </div>
+      )}
+      
       <div className="w-full max-w-md mx-auto rounded-xl">
         <video
           className="w-full h-64 object-cover rounded-lg shadow-lg mb-4 rounded-xl"
@@ -263,9 +270,20 @@ export function InvitacionDigitalComponent() {
           Tu navegador no soporta el tag de video.
         </video>
 
-        <h1 className="heading-h1">
+        <div className="title-image-container">
+          <Image
+            src={theme.resources.images.title}
+            alt="Eventest"
+            width={300}
+            height={100}
+            className="title-image"
+            priority
+          />
+        </div>
+
+        {/* <h1 className="heading-h1">
           Celebremos Juntos
-        </h1>
+        </h1> */}
 
         <div className="relative w-full h-[50vh] mb-4 rounded-xl overflow-hidden">
           {['/img1.webp', '/img2.webp', '/img3.webp'].map((src, index) => (
@@ -282,7 +300,7 @@ export function InvitacionDigitalComponent() {
         </div>
 
         <p className="heading-h2 mt-4 mb-4">
-          {eventStarted ? 'Celebra con nosotros' : 'Te invitamos a celebrar'}
+          {eventStarted ? 'El evento ya comenzó, disfrutá la fiesta!' : 'Te invitamos a pasar una noche unica'}
         </p>
 
         {eventStarted ? (
@@ -322,24 +340,27 @@ export function InvitacionDigitalComponent() {
           </div>
         ) : (
           <div>
-            <div className='body-large text-center mb-2 bg-gradient-to-br from-pink-300 via-purple-300 to-indigo-400 text-white p-2 rounded-xl'> Te esperamos este {eventDate.toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })} a las {eventDate.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' })} para pasar una noche inolvidable. </div>
+            <div className='countdown-message'>
+              Te esperamos este {eventDate.toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })} 
+              a las {eventDate.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' })} para pasar una noche inolvidable.
+            </div>
             <div className='body-base text-center mb-2'> Faltan: </div>
-            <div className="grid grid-cols-4 gap-2 text-center mb-6">
-              <div>
-                <span className="text-2xl font-bold">{countdown.days}</span>
-                <p className="text-sm">Días</p>
+            <div className="countdown-container">
+              <div className="countdown-item">
+                <span className="countdown-number">{countdown.days}</span>
+                <p className="countdown-label">Días</p>
               </div>
-              <div>
-                <span className="text-2xl font-bold">{countdown.hours}</span>
-                <p className="text-sm">Horas</p>
+              <div className="countdown-item">
+                <span className="countdown-number">{countdown.hours}</span>
+                <p className="countdown-label">Horas</p>
               </div>
-              <div>
-                <span className="text-2xl font-bold">{countdown.minutes}</span>
-                <p className="text-sm">Minutos</p>
+              <div className="countdown-item">
+                <span className="countdown-number">{countdown.minutes}</span>
+                <p className="countdown-label">Minutos</p>
               </div>
-              <div>
-                <span className="text-2xl font-bold">{countdown.seconds}</span>
-                <p className="text-sm">Segundos</p>
+              <div className="countdown-item">
+                <span className="countdown-number">{countdown.seconds}</span>
+                <p className="countdown-label">Segundos</p>
               </div>
             </div>
           </div>
