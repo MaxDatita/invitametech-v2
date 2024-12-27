@@ -50,7 +50,10 @@
 
   /* Headings */
   .heading-h1 {
-    @apply text-3xl font-bold text-purple-700 mb-4 text-center font-secondary;
+    @apply text-3xl font-bold text-pink-600 mb-4 text-center font-secondary;
+  }
+  .heading-h1-alt {
+    @apply text-3xl font-bold text-indigo-800 mb-4 text-center font-secondary;
   }
 
   .heading-h2 {
@@ -61,13 +64,22 @@
   .body-large {
     @apply text-lg text-white;
   }
+  .body-large-alt {
+    @apply text-lg text-gray-900;
+  }
 
   .body-base {
     @apply text-base text-white;
   }
+  .body-base-alt {
+    @apply text-base text-gray-900;
+  }
 
   .body-small {
     @apply text-sm text-gray-500;
+  }
+  .body-small-alt {
+    @apply text-sm text-white;
   }
 
   /* Message Cards */
@@ -132,7 +144,7 @@
   /* Live indicator */
   .live-indicator {
     @apply fixed top-4 right-4 flex items-center gap-2 bg-white 
-    text-black px-4 py-2 rounded-full backdrop-blur-sm;
+    text-black px-4 py-2 rounded-full backdrop-blur-sm z-50;
   }
 
   .live-dot {

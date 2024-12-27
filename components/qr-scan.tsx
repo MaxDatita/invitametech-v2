@@ -204,16 +204,15 @@ const QRScanner = () => {
         <h1 className="heading-h1 mb-8 text-center">
           Validación de Invitaciones
         </h1>
-
-        <div className="bg-white/90 backdrop-blur-sm rounded-xl p-4 shadow-lg">
+        <div className="border-2 border-pink-500 shadow-lg shadow-pink-500/90 bg-gradient-to-t from-[#f9adcd] 0% to-[#ffffff] 100% rounded-xl p-4 shadow-lg">
           {isLoading ? (
             <div className="flex flex-col items-center justify-center p-8">
               <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin mb-4" />
-              <p className="body-base text-center">Validando código QR...</p>
+              <p className="body-base-alt text-center">Validando código QR...</p>
             </div>
           ) : !hasPermission ? (
             <div className="text-center p-4">
-              <p className="body-base mb-4">Para escanear códigos QR, necesitamos acceso a tu cámara</p>
+              <p className="body-base-alt mb-4">Para escanear códigos QR, necesitamos acceso a tu cámara</p>
               <Button
                 onClick={requestCameraPermission}
                 variant="primary"
@@ -223,7 +222,7 @@ const QRScanner = () => {
             </div>
           ) : isScanning ? (
             <>
-              <p className="body-base text-center mb-4">
+              <p className="body-base-alt text-center mb-4">
                 Escanea el código QR de la invitación
               </p>
               <div id="reader" className="mx-auto max-w-xl min-h-[300px] rounded-lg overflow-hidden" />
@@ -239,17 +238,17 @@ const QRScanner = () => {
                   <h3 className="heading-h2 mb-4 text-center">
                     {scanResult.success ? '✅ Invitación válida' : '❌ Invitación no válida'}
                   </h3>
-                  <p className="body-base mb-4 text-center">{scanResult.message}</p>
+                  <p className="body-base-alt mb-4 text-center">{scanResult.message}</p>
                   {scanResult.details && (
                     <div className="space-y-2">
                       {scanResult.details.nombre && (
-                        <p className="body-base">Nombre: {scanResult.details.nombre}</p>
+                        <p className="body-base-alt">Nombre: {scanResult.details.nombre}</p>
                       )}
                       {scanResult.details.mesa && (
-                        <p className="body-base">Mesa: {scanResult.details.mesa}</p>
+                        <p className="body-base-alt">Mesa: {scanResult.details.mesa}</p>
                       )}
                       {scanResult.details.invitados && (
-                        <p className="body-base">Invitados: {scanResult.details.invitados}</p>
+                        <p className="body-base-alt">Invitados: {scanResult.details.invitados}</p>
                       )}
                     </div>
                   )}

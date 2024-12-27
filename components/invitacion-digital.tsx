@@ -103,10 +103,12 @@ export function InvitacionDigitalComponent() {
   const pageSize = 20;
   const [showUpdateButton, setShowUpdateButton] = useState(false);
   const [selectedTab, setSelectedTab] = useState<'bebidas' | 'comidas'>('bebidas');
+  const [showLive, setShowLive] = useState(false)
 
   const eventDate = useMemo(() => new Date(theme.dates.event), []);
   const contentActivationDate = new Date(theme.dates.contentActivation);
   const rsvpDeadline = new Date(theme.dates.rsvpDeadline);
+  const liveEndDate = useMemo(() => new Date(theme.dates.liveEnd), []);
 
   // Query para el carrusel (aleatoria)
   const carouselQuery = useQuery({
@@ -150,6 +152,14 @@ export function InvitacionDigitalComponent() {
       const now = new Date()
       setCurrentDate(now)
       const difference = eventDate.getTime() - now.getTime()
+      const liveEndDifference = liveEndDate.getTime() - now.getTime()
+
+      if (difference <= 0 && liveEndDifference > 0) {
+        setEventStarted(true)
+        setShowLive(true)
+      } else if (liveEndDifference <= 0) {
+        setShowLive(false)
+      }
 
       if (difference <= 0) {
         setEventStarted(true)
@@ -165,7 +175,7 @@ export function InvitacionDigitalComponent() {
     }, 1000)
 
     return () => clearInterval(interval)
-  }, [eventDate])
+  }, [eventDate, liveEndDate])
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -251,7 +261,7 @@ export function InvitacionDigitalComponent() {
   //Comienzo la invitacion digital
   return (
     <div className="min-h-screen pt-6 pb-6 pl-6 pr-6 bg-gradient-animation">
-      {eventStarted && (
+      {eventStarted && showLive && (
         <div className="live-indicator">
           <div className="live-dot"></div>
           <span className="text-sm font-bold">LIVE</span>
