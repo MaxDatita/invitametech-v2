@@ -59,6 +59,9 @@
   .heading-h2 {
     @apply text-2xl font-semibold text-white text-center font-secondary;
   }
+  .heading-h2-alt {
+    @apply text-2xl font-semibold text-indigo-800 text-center font-secondary;
+  }
 
   /* Body text */
   .body-large {

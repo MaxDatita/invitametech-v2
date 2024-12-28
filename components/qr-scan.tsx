@@ -235,7 +235,7 @@ const QRScanner = () => {
                     ? 'bg-green-50 text-green-800 border border-green-200 text-center' 
                     : 'bg-red-50 text-red-800 border border-red-200 text-center'
                 }`}>
-                  <h3 className="heading-h2 mb-4 text-center">
+                  <h3 className="heading-h2-alt mb-4 text-center">
                     {scanResult.success ? '✅ Invitación válida' : '❌ Invitación no válida'}
                   </h3>
                   <p className="body-base-alt mb-4 text-center">{scanResult.message}</p>
