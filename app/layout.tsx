@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Toaster } from "sonner";
 import "./globals.css";
+import Providers from './providers'
 
 export const metadata: Metadata = {
   title: "Eventest - Invitación Digital",
@@ -38,8 +39,10 @@ export default function RootLayout({
   return (
     <html lang="es">
       <body>
-        {children}
-        <Toaster />
+        <Providers>
+          {children}
+          <Toaster />
+        </Providers>
       </body>
     </html>
   );
