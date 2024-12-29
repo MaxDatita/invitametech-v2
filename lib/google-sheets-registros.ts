@@ -153,6 +153,7 @@ export async function saveSellerToken(token: string): Promise<void> {
   }
 }
 
+// Usar toquen del vendedor para la venta de tickets
 export async function getSellerToken(): Promise<string | null> {
   try {
     const jwt = new JWT({

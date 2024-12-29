@@ -11,7 +11,8 @@ export async function GET() {
     const url = oauth.getAuthorizationURL({
       options: {
         client_id: process.env.NEXT_PUBLIC_MP_CLIENT_ID!,
-        redirect_uri: `${process.env.NEXT_PUBLIC_BASE_URL}/api/mercadopago/connect`
+        redirect_uri: 'https://auth.eventechy.com/api/mercadopago/connect',
+        state: process.env.NEXT_PUBLIC_BASE_URL // Identificador del proyecto
       },
     });
 
