@@ -8,10 +8,19 @@
   body {
     @apply font-primary;
   }
+
+  /* Font families */
+  .font-primary {
+    font-family: 'Roboto', sans-serif;
+  }
+
+  .font-secondary {
+    font-family: 'Playfair Display', serif;
+  }
 }
 
-/* Gradiente de fondo */
 @layer components {
+  /* Gradiente de fondo */
   .bg-gradient-animation {
     @apply min-h-screen;
     background-color: hsla(359.00000000000006, 100%, 50%, 1);
@@ -37,15 +46,6 @@
       transform: translateY(0);
       animation-timing-function: cubic-bezier(0, 0, 0.2, 1);
     }
-  }
-}
-  /* Font families */
-  .font-primary {
-    font-family: 'Roboto', sans-serif;
-  }
-
-  .font-secondary {
-    font-family: 'Playfair Display', serif;
   }
 
   /* Headings */
