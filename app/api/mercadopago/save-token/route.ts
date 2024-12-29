@@ -10,7 +10,6 @@ export async function POST(request: Request) {
     }
 
     await saveSellerToken(token);
-    console.log('Token saved successfully in Google Sheets');
 
     return NextResponse.json({ success: true });
   } catch (error) {

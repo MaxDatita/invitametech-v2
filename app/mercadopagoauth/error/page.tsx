@@ -9,26 +9,19 @@ export default function MercadoPagoAuthErrorPage() {
   const router = useRouter()
 
   return (
-    <div className="min-h-screen pt-6 pb-6 pl-6 pr-6 bg-gradient-animation flex items-center justify-center">
-      <Card className="w-full max-w-md rounded-xl backdrop-blur-sm bg-white/30 p-8">
-        <div className="text-center space-y-6">
-          <AlertTriangle className="h-16 w-16 text-red-500 mx-auto" />
-          <h1 className="heading-h1">Error de Configuración</h1>
-          
-          <p className="body-base">
-            Ha ocurrido un error al conectar tu cuenta de MercadoPago. 
-            Por favor, contacta al administrador del proyecto para resolver este problema.
-          </p>
+    <Card className="auth-card">
+      <div className="auth-card-content">
+        <AlertTriangle className="auth-card-icon auth-card-icon-error" />
+        <h1 className="auth-card-title">Error de Configuración</h1>
+        
+        <p className="auth-card-text">
+          Ha ocurrido un error al conectar tu cuenta...
+        </p>
 
-          <Button
-            variant="primary"
-            className="w-full"
-            onClick={() => router.push('/')}
-          >
-            Volver al Inicio
-          </Button>
-        </div>
-      </Card>
-    </div>
+        <Button variant="primary" className="w-full">
+          Volver al Inicio
+        </Button>
+      </div>
+    </Card>
   )
 } 

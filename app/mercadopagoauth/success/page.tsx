@@ -13,7 +13,6 @@ function SuccessContent() {
 
   useEffect(() => {
     const token = searchParams.get('token')
-    console.log('Token received:', token)
 
     if (token) {
       fetch('/api/mercadopago/save-token', {
@@ -34,12 +33,12 @@ function SuccessContent() {
   }, [searchParams])
 
   return (
-    <Card className="w-full max-w-md rounded-xl backdrop-blur-sm bg-white/30 p-8">
-      <div className="text-center space-y-6">
-        <CheckCircle className="h-16 w-16 text-green-500 mx-auto" />
-        <h1 className="heading-h1">¡Configuración Exitosa!</h1>
+    <Card className="auth-card">
+      <div className="auth-card-content">
+        <CheckCircle className="auth-card-icon auth-card-icon-success" />
+        <h1 className="auth-card-title">¡Configuración Exitosa!</h1>
         
-        <p className="body-base">
+        <p className="auth-card-text">
           Tu cuenta de MercadoPago ha sido conectada correctamente. Ya puedes comenzar a vender tickets.
         </p>
 

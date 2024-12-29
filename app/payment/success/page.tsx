@@ -4,6 +4,8 @@ import { Suspense, useEffect, useRef } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { toast } from 'sonner'
 import { Loader2 } from 'lucide-react'
+import { CheckCircle } from 'lucide-react'
+import { Card } from "@/components/ui/card"
 
 function SuccessContent() {
   const router = useRouter()
@@ -49,13 +51,16 @@ function SuccessContent() {
   }, [router, searchParams]);
 
   return (
-    <div className="w-full max-w-md rounded-xl backdrop-blur-sm bg-white/30 p-8 text-center">
-      <h1 className="heading-h1 mb-4">¡Pago Exitoso!</h1>
-      <div className="flex flex-col items-center gap-4">
-        <Loader2 className="animate-spin heading-h1 h-12 w-12" />
-        <p className="body-base">Estamos procesando tu compra. Recibirás un email con los tickets.</p>
+    <Card className="auth-card">
+      <div className="auth-card-content">
+        <CheckCircle className="auth-card-icon auth-card-icon-success" />
+        <h1 className="auth-card-title">¡Pago Exitoso!</h1>
+        
+        <p className="auth-card-text">
+          Estamos procesando tu compra...
+        </p>
       </div>
-    </div>
+    </Card>
   );
 }
 
