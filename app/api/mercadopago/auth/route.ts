@@ -12,7 +12,7 @@ export async function GET() {
       options: {
         client_id: process.env.NEXT_PUBLIC_MP_CLIENT_ID!,
         redirect_uri: 'https://auth.eventechy.com/api/mercadopago/connect',
-        state: process.env.NEXT_PUBLIC_BASE_URL // Identificador del proyecto
+        state: process.env.NEXT_PUBLIC_BASE_URL!.replace('https://', '') // Remover https://
       },
     });
 
