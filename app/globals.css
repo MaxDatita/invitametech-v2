@@ -168,7 +168,7 @@
   .auth-card {
     @apply w-full max-w-md rounded-xl border-2 border-pink-500 
     shadow-lg shadow-pink-500/90 
-    bg-gradient-to-t from-[#f9adcd] 0% to-[#ffffff] 100% p-8;
+    bg-gradient-to-t from-[#f9adcd] to-[#ffffff] p-8;
   }
 
   .auth-card-content {
@@ -194,5 +194,6 @@
   .auth-card-text {
     @apply body-base-alt;
   }
+}
 
 
