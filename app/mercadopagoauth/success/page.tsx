@@ -1,12 +1,26 @@
 'use client'
 
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { CheckCircle } from 'lucide-react'
+import { useEffect } from 'react'
+import { saveSellerToken } from '@/lib/google-sheets-registros'
 
 export default function MercadoPagoAuthSuccessPage() {
   const router = useRouter()
+  const searchParams = useSearchParams()
+
+  useEffect(() => {
+    const token = searchParams.get('token')
+    if (token) {
+      saveSellerToken(token).then(() => {
+        console.log('Token saved successfully')
+      }).catch(error => {
+        console.error('Error saving token:', error)
+      })
+    }
+  }, [searchParams])
 
   return (
     <div className="min-h-screen pt-6 pb-6 pl-6 pr-6 bg-gradient-animation flex items-center justify-center">

@@ -147,6 +147,8 @@ export async function saveSellerToken(token: string): Promise<void> {
     const tokenCell = sheet.getCell(1, 2); // C2 en coordenadas 0-based
     tokenCell.value = token;
     await sheet.saveUpdatedCells();
+    
+    console.log('Token saved to cell C2');
   } catch (error) {
     console.error('Error saving seller token:', error);
     throw error;
