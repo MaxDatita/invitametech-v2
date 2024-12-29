@@ -4,6 +4,7 @@ import "./globals.css";
 import Providers from './providers'
 
 export const metadata: Metadata = {
+  metadataBase: new URL(process.env.NEXT_PUBLIC_BASE_URL!),
   title: "Eventest - Invitación Digital",
   description: "Te invitamos a compartir una noche inolvidable",
   openGraph: {
