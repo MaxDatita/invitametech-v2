@@ -6,7 +6,6 @@ import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { CheckCircle } from 'lucide-react'
 import { useEffect } from 'react'
-import { saveSellerToken } from '@/lib/google-sheets-registros'
 
 function SuccessContent() {
   const router = useRouter()
@@ -14,10 +13,21 @@ function SuccessContent() {
 
   useEffect(() => {
     const token = searchParams.get('token')
+    console.log('Token received:', token)
+
     if (token) {
-      saveSellerToken(token).then(() => {
-        console.log('Token saved successfully')
-      }).catch(error => {
+      fetch('/api/mercadopago/save-token', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ token }),
+      })
+      .then(response => response.json())
+      .then(data => {
+        console.log('Token saved:', data)
+      })
+      .catch(error => {
         console.error('Error saving token:', error)
       })
     }
