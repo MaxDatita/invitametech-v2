@@ -34,7 +34,7 @@ function SuccessContent() {
 
   return (
     <div className="min-h-screen pt-6 pb-6 pl-6 pr-6 bg-gradient-animation flex items-center justify-center">
-      <Card className="auth-card">
+      <Card className="auth-card rounded-xl">
         <div className="auth-card-content">
           <CheckCircle className="auth-card-icon auth-card-icon-success" />
           <h1 className="auth-card-title">¡Configuración Exitosa!</h1>

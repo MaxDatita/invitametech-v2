@@ -61,8 +61,8 @@ export const theme = {
   resources: {
     contentLink: 'https://drive.google.com/drive/u/2/folders/1a1Nsde0Zyx9Ysk_rI7sjaGnSB93BeW1c',
     images: {
-      carousel: ['/img1.webp', '/img2.webp', '/img3.webp'],
-      video: '/vid1.mp4',
+      carousel: ['/imgfest1.webp', '/imgfest2.webp', '/imgfest3.webp'],
+      video: '/vidfest.mp4',
       title: '/eventest.webp'
     },
   },

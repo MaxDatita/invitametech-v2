@@ -296,7 +296,7 @@ export function InvitacionDigitalComponent() {
         </h1> */}
 
         <div className="relative w-full h-[50vh] mb-4 rounded-xl overflow-hidden">
-          {['/img1.webp', '/img2.webp', '/img3.webp'].map((src, index) => (
+          {theme.resources.images.carousel.map((src, index) => (
             <Image
               key={index}
               src={src}

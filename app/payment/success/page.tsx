@@ -1,22 +1,16 @@
 'use client'
 
-import { Suspense, useEffect, useRef } from 'react'
+import { Suspense, useEffect } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { toast } from 'sonner'
-import { Loader2 } from 'lucide-react'
-import { CheckCircle } from 'lucide-react'
 import { Card } from "@/components/ui/card"
+import { CheckCircle } from 'lucide-react'
 
 function SuccessContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
-  const processingRef = useRef(false)
-
+  
   useEffect(() => {
     const saveInvitado = async () => {
-      if (processingRef.current) return;
-      processingRef.current = true;
-
       try {
         const quantity = parseInt(searchParams.get('quantity') || '1');
         const response = await fetch('/api/payment/success', {
@@ -34,14 +28,12 @@ function SuccessContent() {
 
         if (!response.ok) throw new Error('Error saving invitado');
         
-        toast.success('¡Pago exitoso! Revisa tu email para ver los tickets')
+        // Redirigir después de 3 segundos
         setTimeout(() => {
           router.push('/')
-        }, 2000)
+        }, 3000)
       } catch (error) {
         console.error('Error:', error)
-        toast.error('Error al procesar el registro')
-        processingRef.current = false;
       }
     };
 
@@ -51,31 +43,35 @@ function SuccessContent() {
   }, [router, searchParams]);
 
   return (
-    <Card className="auth-card">
-      <div className="auth-card-content">
-        <CheckCircle className="auth-card-icon auth-card-icon-success" />
-        <h1 className="auth-card-title">¡Pago Exitoso!</h1>
-        
-        <p className="auth-card-text">
-          Estamos procesando tu compra...
-        </p>
-      </div>
-    </Card>
+    <div className="min-h-screen pt-6 pb-6 pl-6 pr-6 bg-gradient-animation flex items-center justify-center">
+      <Card className="auth-card rounded-xl">
+        <div className="auth-card-content">
+          <CheckCircle className="auth-card-icon auth-card-icon-success" />
+          <h1 className="auth-card-title">Pago Exitoso</h1>
+          
+          <p className="auth-card-text">
+            Tu pago ha sido procesado correctamente. En breve recibirás un email con tus tickets.
+          </p>
+          
+          <p className="auth-card-text text-sm text-gray-600">
+            Serás redirigido automáticamente...
+          </p>
+        </div>
+      </Card>
+    </div>
   );
 }
 
 export default function PaymentSuccessPage() {
   return (
-    <div className="min-h-screen pt-6 pb-6 pl-6 pr-6 bg-gradient-animation flex items-center justify-center">
-      <Suspense 
-        fallback={
-          <div className="w-full max-w-md rounded-xl backdrop-blur-sm bg-white/30 p-8 text-center">
-            <Loader2 className="animate-spin heading-h1 h-12 w-12 mx-auto" />
-          </div>
-        }
-      >
-        <SuccessContent />
-      </Suspense>
-    </div>
+    <Suspense fallback={
+      <div className="min-h-screen pt-6 pb-6 pl-6 pr-6 bg-gradient-animation flex items-center justify-center">
+        <Card className="auth-card">
+          <div className="text-center">Procesando pago...</div>
+        </Card>
+      </div>
+    }>
+      <SuccessContent />
+    </Suspense>
   )
 } 
