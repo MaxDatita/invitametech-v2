@@ -55,7 +55,7 @@ export async function sendTicketEmail(data: TicketEmailData) {
     `;
 
     const payload = JSON.stringify({
-      from: process.env.SENDER_EMAIL,
+      from: "tickets@eventechy.com",
       to: data.email,
       subject: `Tus tickets para ${eventName}`,
       html: emailHtml,
@@ -69,7 +69,7 @@ export async function sendTicketEmail(data: TicketEmailData) {
       maxBodyLength: Infinity,
       url: 'https://api.envialosimple.email/api/v1/mail/send',
       headers: { 
-        'Authorization': `Bearer ${process.env.ENVIALO_SIMPLE_API_KEY}`,
+        'Authorization': `Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJpYXQiOjE3MzU5NDE1OTAsImV4cCI6NDg5MTYxNTE5MCwicm9sZXMiOlsiUk9MRV9BRE1JTiIsIlJPTEVfVVNFUiJdLCJraWQiOiI2Nzc4NWRkNmZkODMwMDFiMGYwY2E3NWQiLCJhaWQiOiI2Nzc0MGI1OTJmNjY3NTUzYTQwM2I4YjUiLCJ1c2VybmFtZSI6ImRhdGl0YS5pbmZvQGdtYWlsLmNvbSJ9.D3an38w9ZbI8b0HBu7C6-TrR00A5QYRAEqhxgSp0IrGOMqT4hZwAUP_PYgMIIg60V007eYI5IXwZwrEmsGsZmJ96iJdQSatNqMaPzVJmc_gUZzhLB_RsNrYb0fR7wZHeaXNA_ajmaylI15ARMSYwX83WdtEYSc6s_0j7BJPN58_jCudU_4XJjAakVrl04Oo0XKqfYgfjro3wZBdUfk7tq1G1m6QrMe7kbW2-SnMBYI4pK9Tm8NgKK8wwT9AOM0t1fKAgOUQ99BbiGAEveVHrz3018fdfjjjneN1ggJOv3ggds0uo4er9wJdsOX2y2V69WBrAdlwIRh5QtxIzrhaQqQ`,
         'Content-Type': 'application/json'
       },
       data: payload
