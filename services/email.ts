@@ -10,13 +10,9 @@ interface TicketEmailData {
 
 export async function sendTicketEmail(data: TicketEmailData) {
   try {
-    // Obtener datos del evento
     const { eventName, organizerEmail } = await getEventData();
-    
-    // Obtener tickets del usuario que no han sido enviados
     const tickets = await getTicketsByEmail(data.email);
 
-    // Si no hay tickets pendientes de envío, retornamos
     if (tickets.length === 0) {
       console.log('No hay tickets pendientes de envío para este email');
       return null;
@@ -38,7 +34,7 @@ export async function sendTicketEmail(data: TicketEmailData) {
         
         <h2 style="color: #ff7e33;">Tickets del evento: ${eventName}</h2>
         
-        <p>Hola! Te acercamos tu/s entrada/s. Debes presentarla/s en puerta.</p>
+        <p>Hola {{nombre}}! Te acercamos tu/s entrada/s. Debes presentarla/s en puerta.</p>
         
         <p style="color: #666;"><strong>Nota:</strong> No es necesario imprimir el email, puedes presentarlo desde tu dispositivo teléfono móvil.</p>
         
@@ -58,25 +54,42 @@ export async function sendTicketEmail(data: TicketEmailData) {
       </div>
     `;
 
-    const response = await axios.post(
-      'https://api.envialosimple.com/api/v1/send',
-      {
-        api_key: process.env.ENVIALO_SIMPLE_API_KEY,
-        from: process.env.SENDER_EMAIL,
-        to: data.email,
-        subject: `Tus tickets para ${eventName}`,
-        html: emailHtml,
+    const payload = JSON.stringify({
+      from: process.env.SENDER_EMAIL,
+      to: data.email,
+      subject: `Tus tickets para ${eventName}`,
+      html: emailHtml,
+      substitutions: {
+        nombre: data.nombre
       }
-    );
+    });
 
-    // Si el envío fue exitoso, marcamos los tickets como enviados
-    if (response.data) {
+    const config = {
+      method: 'post',
+      maxBodyLength: Infinity,
+      url: 'https://api.envialosimple.email/api/v1/mail/send',
+      headers: { 
+        'Authorization': `Bearer ${process.env.ENVIALO_SIMPLE_API_KEY}`,
+        'Content-Type': 'application/json'
+      },
+      data: payload
+    };
+
+    const response = await axios(config);
+    console.log('Respuesta de Envialo Simple:', response.data);
+
+    if (response.data.success) {
       await markTicketsAsSent(tickets.map(ticket => ticket.rowIndex));
     }
 
     return response.data;
   } catch (error) {
-    console.error('Error enviando el email:', error);
-    throw new Error('No se pudo enviar el email del ticket');
+    if (axios.isAxiosError(error)) {
+      console.error('Error enviando el email:', error);
+      console.error('Detalles del error:', error.response?.data || error.message);
+    } else {
+      console.error('Error enviando el email:', error);
+    }
+    throw error;
   }
 } 
