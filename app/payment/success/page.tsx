@@ -3,7 +3,7 @@
 import { Suspense, useEffect, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Card } from "@/components/ui/card"
-import { CheckCircle, AlertCircle } from 'lucide-react'
+import { CheckCircle } from 'lucide-react'
 import { sendTicketEmail } from '@/services/email'
 
 function SuccessContent() {
@@ -35,26 +35,23 @@ function SuccessContent() {
 
         if (!response.ok) throw new Error('Error guardando la información del ticket');
 
-        // Enviamos el email con los tickets
-        const emailResponse = await sendTicketEmail({
+        // Iniciamos la redirección inmediatamente
+        setTimeout(() => {
+          router.push('/')
+        }, 3000);
+
+        // El proceso de email continúa en segundo plano
+        await new Promise(resolve => setTimeout(resolve, 5000));
+        await sendTicketEmail({
           nombre,
           email,
           tipoTicket,
           quantity
         });
 
-        if (!emailResponse) {
-          setError('Los tickets ya fueron enviados anteriormente');
-          return;
-        }
-        
-        // Redirigir después de 3 segundos solo si todo fue exitoso
-        setTimeout(() => {
-          router.push('/')
-        }, 3000)
       } catch (error) {
         console.error('Error:', error)
-        setError('Hubo un problema procesando tu ticket. Por favor, contacta a soporte.')
+        // No mostramos el error ya que el usuario probablemente ya fue redirigido
       }
     };
 
@@ -62,23 +59,6 @@ function SuccessContent() {
       saveInvitadoAndSendEmail();
     }
   }, [router, searchParams]);
-
-  if (error) {
-    return (
-      <div className="min-h-screen pt-6 pb-6 pl-6 pr-6 bg-gradient-animation flex items-center justify-center">
-        <Card className="auth-card rounded-xl">
-          <div className="auth-card-content">
-            <AlertCircle className="auth-card-icon auth-card-icon-error" />
-            <h1 className="auth-card-title">Atención</h1>
-            
-            <p className="auth-card-text">
-              {error}
-            </p>
-          </div>
-        </Card>
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen pt-6 pb-6 pl-6 pr-6 bg-gradient-animation flex items-center justify-center">
