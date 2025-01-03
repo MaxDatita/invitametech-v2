@@ -1,4 +1,5 @@
-import { google } from 'googleapis';
+import { GoogleSpreadsheet } from 'google-spreadsheet';
+import { JWT } from 'google-auth-library';
 
 interface TicketData {
   ticketId: string;
@@ -9,24 +10,23 @@ interface TicketData {
 
 export async function getEventData() {
   try {
-    const auth = new google.auth.GoogleAuth({
-      credentials: {
-        client_email: process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
-        private_key: process.env.GOOGLE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
-      },
-      scopes: ['https://www.googleapis.com/auth/spreadsheets.readonly'],
+    const jwt = new JWT({
+      email: process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
+      key: process.env.GOOGLE_PRIVATE_KEY?.split(String.raw`\n`).join('\n'),
+      scopes: ['https://www.googleapis.com/auth/spreadsheets'],
     });
 
-    const sheets = google.sheets({ version: 'v4', auth });
+    const doc = new GoogleSpreadsheet(process.env.GOOGLE_SHEET_ID!, jwt);
+    await doc.loadInfo();
     
-    // Obtener datos del evento
-    const eventDataResponse = await sheets.spreadsheets.values.get({
-      spreadsheetId: process.env.GOOGLE_SHEET_ID,
-      range: 'Datos!C3:C4',
-    });
+    const sheet = doc.sheetsByTitle['Datos'];
+    if (!sheet) {
+      throw new Error('No se encontró la hoja "Datos"');
+    }
 
-    const eventName = eventDataResponse.data.values?.[0]?.[0] || '';
-    const organizerEmail = eventDataResponse.data.values?.[1]?.[0] || '';
+    await sheet.loadCells('C3:C4');
+    const eventName = sheet.getCell(2, 2).value?.toString() || ''; // C3
+    const organizerEmail = sheet.getCell(3, 2).value?.toString() || ''; // C4
 
     return { eventName, organizerEmail };
   } catch (error) {
@@ -37,32 +37,30 @@ export async function getEventData() {
 
 export async function getTicketsByEmail(email: string): Promise<TicketData[]> {
   try {
-    const auth = new google.auth.GoogleAuth({
-      credentials: {
-        client_email: process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
-        private_key: process.env.GOOGLE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
-      },
-      scopes: ['https://www.googleapis.com/auth/spreadsheets.readonly'],
+    const jwt = new JWT({
+      email: process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
+      key: process.env.GOOGLE_PRIVATE_KEY?.split(String.raw`\n`).join('\n'),
+      scopes: ['https://www.googleapis.com/auth/spreadsheets'],
     });
 
-    const sheets = google.sheets({ version: 'v4', auth });
+    const doc = new GoogleSpreadsheet(process.env.GOOGLE_SHEET_ID!, jwt);
+    await doc.loadInfo();
     
-    // Obtener todos los tickets del email
-    const response = await sheets.spreadsheets.values.get({
-      spreadsheetId: process.env.GOOGLE_SHEET_ID,
-      range: 'Invitados!B:Y',
-    });
+    const sheet = doc.sheetsByTitle['Invitados'];
+    if (!sheet) {
+      throw new Error('No se encontró la hoja "Invitados"');
+    }
 
+    const rows = await sheet.getRows();
     const tickets: TicketData[] = [];
-    
-    response.data.values?.forEach((row, index) => {
-      // Solo incluir tickets que coincidan con el email y no tengan el check de enviado
-      if (row[2] === email && !row[8]) { // row[8] es la columna I (check de enviado)
+
+    rows.forEach((row, index) => {
+      if (row.get('Email') === email && !row.get('Enviado')) {
         tickets.push({
-          ticketId: row[1],     // Columna B
-          ticketType: row[7],   // Columna H
-          qrCode: row[24],      // Columna Y
-          rowIndex: index + 1   // Guardamos el índice de la fila para actualizar después
+          ticketId: row.get('ID'),          // Columna B
+          ticketType: row.get('Ticket'),    // Columna H
+          qrCode: row.get('QR'),            // Columna Y
+          rowIndex: index + 2               // +2 porque las filas empiezan en 1 y hay encabezado
         });
       }
     });
@@ -76,31 +74,33 @@ export async function getTicketsByEmail(email: string): Promise<TicketData[]> {
 
 export async function markTicketsAsSent(rowIndexes: number[]) {
   try {
-    const auth = new google.auth.GoogleAuth({
-      credentials: {
-        client_email: process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
-        private_key: process.env.GOOGLE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
-      },
+    const jwt = new JWT({
+      email: process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
+      key: process.env.GOOGLE_PRIVATE_KEY?.split(String.raw`\n`).join('\n'),
       scopes: ['https://www.googleapis.com/auth/spreadsheets'],
     });
 
-    const sheets = google.sheets({ version: 'v4', auth });
+    const doc = new GoogleSpreadsheet(process.env.GOOGLE_SHEET_ID!, jwt);
+    await doc.loadInfo();
     
-    // Preparar los datos para actualizar
-    const requests = rowIndexes.map(rowIndex => ({
-      range: `Invitados!I${rowIndex}`,
-      values: [['✓']] // Agregar el check
-    }));
+    const sheet = doc.sheetsByTitle['Invitados'];
+    if (!sheet) {
+      throw new Error('No se encontró la hoja "Invitados"');
+    }
 
-    // Actualizar todas las filas de una vez
-    await sheets.spreadsheets.values.batchUpdate({
-      spreadsheetId: process.env.GOOGLE_SHEET_ID,
-      requestBody: {
-        valueInputOption: 'USER_ENTERED',
-        data: requests
-      }
+    await sheet.loadCells({
+      startRowIndex: Math.min(...rowIndexes) - 1,
+      endRowIndex: Math.max(...rowIndexes),
+      startColumnIndex: 8,  // Columna I (0-based)
+      endColumnIndex: 9,    // Columna I
     });
 
+    for (const rowIndex of rowIndexes) {
+      const cell = sheet.getCell(rowIndex - 1, 8); // Columna I (0-based)
+      cell.value = '✓';
+    }
+
+    await sheet.saveUpdatedCells();
   } catch (error) {
     console.error('Error marking tickets as sent:', error);
     throw error;
