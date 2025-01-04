@@ -10,10 +10,10 @@ interface TicketEmailData {
 
 export async function sendTicketEmail(data: TicketEmailData) {
   try {
-    const { eventName, organizerEmail } = await getEventData();
-    const tickets = await getTicketsByEmail(data.email);
+    const response = await fetch(`/api/google-sheets?email=${data.email}`);
+    const { eventData, tickets } = await response.json();
 
-    if (tickets.length === 0) {
+    if (!tickets || tickets.length === 0) {
       console.log('No hay tickets pendientes de envío para este email');
       return null;
     }
@@ -95,7 +95,15 @@ export async function sendTicketEmail(data: TicketEmailData) {
     console.log('Respuesta de Envialo Simple:', response.data);
 
     if (response.data.success) {
-      await markTicketsAsSent(tickets.map(ticket => ticket.rowIndex));
+      await fetch('/api/google-sheets', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          rowIndexes: tickets.map(ticket => ticket.rowIndex)
+        }),
+      });
     }
 
     return response.data;

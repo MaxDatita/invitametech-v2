@@ -1,6 +1,11 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   output: 'standalone',
+  env: {
+    GOOGLE_SERVICE_ACCOUNT_EMAIL: process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
+    GOOGLE_PRIVATE_KEY: process.env.GOOGLE_PRIVATE_KEY,
+    GOOGLE_SHEET_ID: process.env.GOOGLE_SHEET_ID,
+  },
   images: {
     unoptimized: true,
     domains: ['eventechy.com', 'invitacion-v2.eventechy.com'],
