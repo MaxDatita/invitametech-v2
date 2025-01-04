@@ -34,21 +34,41 @@ function SuccessContent() {
 
         if (!response.ok) throw new Error('Error guardando la información del ticket');
 
-        // Iniciamos la redirección inmediatamente
-        setTimeout(() => {
-          router.push('/')
-        }, 3000);
+        // Esperamos un tiempo prudente para que Google Sheets actualice
+        await new Promise(resolve => setTimeout(resolve, 3000));
 
-        // El proceso de email continúa en segundo plano
-        sendTicketEmail({
-          nombre,
-          email,
-          tipoTicket,
-          quantity
-        }).catch(error => console.error('Error enviando el email:', error));
+        // Intentamos enviar el email hasta 3 veces
+        let attempts = 0;
+        let emailSent = false;
+
+        while (attempts < 3 && !emailSent) {
+          try {
+            const emailResponse = await sendTicketEmail({
+              nombre,
+              email,
+              tipoTicket,
+              quantity
+            });
+            
+            if (emailResponse) {
+              emailSent = true;
+              console.log('Email enviado exitosamente');
+            } else {
+              console.log(`Intento ${attempts + 1}: No hay tickets disponibles aún`);
+              await new Promise(resolve => setTimeout(resolve, 2000));
+            }
+          } catch (error) {
+            console.error(`Error en intento ${attempts + 1}:`, error);
+          }
+          attempts++;
+        }
+
+        // Redirigimos independientemente del resultado del email
+        router.push('/');
 
       } catch (error) {
-        console.error('Error:', error)
+        console.error('Error:', error);
+        router.push('/');
       }
     };
 
