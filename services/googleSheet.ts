@@ -60,8 +60,18 @@ export async function getTicketsByEmail(email: string): Promise<TicketData[]> {
     const tickets: TicketData[] = [];
 
     rows.forEach((row, index) => {
-      const enviado = row.get('Enviado');
-      if (row.get('Email') === email && !enviado) {
+      // Verificamos que el email coincida (columna D) y que no esté marcado como enviado (columna I)
+      const rowEmail = row.get('Email');  // Columna D
+      const enviado = row.get('Enviado'); // Columna I
+      
+      console.log(`Checking row ${index + 2}:`, {
+        email: rowEmail,
+        enviado: enviado,
+        matches: rowEmail === email,
+        notSent: !enviado || enviado === ''
+      });
+
+      if (rowEmail === email && (!enviado || enviado === '')) {
         tickets.push({
           ticketId: row.get('ID'),
           ticketType: row.get('Ticket'),
@@ -71,6 +81,7 @@ export async function getTicketsByEmail(email: string): Promise<TicketData[]> {
       }
     });
 
+    console.log(`Found ${tickets.length} unsent tickets for email ${email}`);
     return tickets;
   } catch (error) {
     console.error('Error getting tickets:', error);
@@ -86,19 +97,23 @@ export async function markTicketsAsSent(rowIndexes: number[]) {
       throw new Error('No se encontró la hoja "Invitados"');
     }
 
+    console.log(`Marking tickets as sent for rows:`, rowIndexes);
+
     await sheet.loadCells({
       startRowIndex: Math.min(...rowIndexes) - 1,
       endRowIndex: Math.max(...rowIndexes),
-      startColumnIndex: 8,
-      endColumnIndex: 9,
+      startColumnIndex: 8,  // Columna I (0-based)
+      endColumnIndex: 9,    // Columna I
     });
 
     for (const rowIndex of rowIndexes) {
-      const cell = sheet.getCell(rowIndex - 1, 8);
+      const cell = sheet.getCell(rowIndex - 1, 8); // Columna I (0-based)
       cell.value = '✓';
+      console.log(`Marked row ${rowIndex} as sent`);
     }
 
     await sheet.saveUpdatedCells();
+    console.log('Successfully saved all marks');
   } catch (error) {
     console.error('Error marking tickets as sent:', error);
     throw error;
