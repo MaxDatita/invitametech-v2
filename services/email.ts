@@ -18,30 +18,46 @@ export async function sendTicketEmail(data: TicketEmailData) {
       return null;
     }
 
-    // Crear HTML para cada ticket
-    const ticketsHtml = tickets.map(ticket => `
-      <div style="margin-bottom: 20px; border: 1px solid #ddd; padding: 20px; border-radius: 8px;">
-        <h3 style="color: #ff7e33;">Ticket ${ticket.ticketType} ID: ${ticket.ticketId}</h3>
-        <img src="${ticket.qrCode}" alt="QR Code" style="width: 200px; height: 200px;"/>
+    // Agrupamos los tickets por tipo para mostrarlos organizados
+    const ticketsByType: { [key: string]: typeof tickets } = {};
+    tickets.forEach(ticket => {
+      if (!ticketsByType[ticket.ticketType]) {
+        ticketsByType[ticket.ticketType] = [];
+      }
+      ticketsByType[ticket.ticketType].push(ticket);
+    });
+
+    // Creamos el HTML agrupando por tipo de ticket
+    const ticketsHtml = Object.entries(ticketsByType).map(([type, tickets]) => `
+      <div style="margin-bottom: 30px;">
+        <h3 style="color: #ff7e33;">Tickets ${type}</h3>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px;">
+          ${tickets.map(ticket => `
+            <div style="border: 1px solid #ddd; padding: 15px; border-radius: 8px; text-align: center;">
+              <p style="margin: 0 0 10px 0;">ID: ${ticket.ticketId}</p>
+              <img src="${ticket.qrCode}" alt="QR Code" style="width: 150px; height: 150px;"/>
+            </div>
+          `).join('')}
+        </div>
       </div>
     `).join('');
 
     const emailHtml = `
-      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+      <div style="font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto;">
         <div style="text-align: center; margin-bottom: 30px;">
-          <img src="${process.env.NEXT_PUBLIC_BASE_URL}/images/logo.png" alt="Eventechy" style="width: 150px;"/>
+          <img src="https://datitatech.com/eventechy-logo.png" alt="Eventechy" style="width: 150px;"/>
         </div>
         
         <h2 style="color: #ff7e33;">Tickets del evento: ${eventName}</h2>
         
-        <p>Hola {{nombre}}! Te acercamos tu/s entrada/s. Debes presentarla/s en puerta.</p>
+        <p>Hola {{nombre}}! Te acercamos tus entradas. Debes presentarlas en puerta.</p>
         
         <p style="color: #666;"><strong>Nota:</strong> No es necesario imprimir el email, puedes presentarlo desde tu dispositivo teléfono móvil.</p>
         
         ${ticketsHtml}
         
         <div style="color: #666; font-size: 12px; margin-top: 30px;">
-          <p>Eventechy es solo el intermediario entre el evento y los asistentes al mismo. No respondas este email ya que es solo transaccional, si requieres más información o tienes inconvenientes con tu ticket, contacta al organizador del evento mediante el botón debajo.</p>
+          <p>Eventechy es solo el intermediario entre el evento y los asistentes al mismo. No respondas este email ya que es solo transaccional, si requieres más información o tienes inconvenientes con tus tickets, contacta al organizador del evento mediante el botón debajo.</p>
         </div>
         
         <div style="text-align: center; margin-top: 20px;">

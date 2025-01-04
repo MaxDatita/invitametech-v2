@@ -55,7 +55,8 @@ export async function getTicketsByEmail(email: string): Promise<TicketData[]> {
     const tickets: TicketData[] = [];
 
     rows.forEach((row, index) => {
-      if (row.get('Email') === email && !row.get('Enviado')) {
+      const enviado = row.get('Enviado');
+      if (row.get('Email') === email && !enviado) {
         tickets.push({
           ticketId: row.get('ID'),          // Columna B
           ticketType: row.get('Ticket'),    // Columna H
