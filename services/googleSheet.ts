@@ -59,31 +59,46 @@ export async function getUnsentTickets(email: string): Promise<TicketData[]> {
     const rows = await sheet.getRows();
     const tickets: TicketData[] = [];
 
-    // Agrupar tickets por email que no han sido enviados
+    console.log(`Buscando tickets no enviados para email: ${email}`);
+
     rows.forEach((row, index) => {
       const rowEmail = row.get('Email')?.trim();
       const enviado = row.get('Enviado');
       const id = row.get('ID');
       const qrCode = row.get('QR');
+      const ticketType = row.get('Ticket');
 
+      console.log(`Revisando fila ${index + 2}:`, {
+        email: rowEmail,
+        enviado: enviado ? 'Sí' : 'No',
+        id,
+        tipoTicket: ticketType
+      });
+
+      // Solo incluimos tickets que:
+      // 1. Coincidan con el email
+      // 2. No estén marcados como enviados
+      // 3. Tengan ID y código QR válidos
       if (
         rowEmail === email && 
         (!enviado || enviado === '') && 
         id && 
-        qrCode?.startsWith('https://quickchart.io/qr')
+        qrCode
       ) {
+        console.log(`Encontrado ticket válido en fila ${index + 2}`);
         tickets.push({
           ticketId: id,
-          ticketType: row.get('Ticket'),
+          ticketType: ticketType || 'General',
           qrCode: qrCode.replace('@', ''),
           rowIndex: index + 2
         });
       }
     });
 
+    console.log(`Total de tickets encontrados: ${tickets.length}`);
     return tickets;
   } catch (error) {
-    console.error('Error getting tickets:', error);
+    console.error('Error obteniendo tickets:', error);
     throw error;
   }
 }
