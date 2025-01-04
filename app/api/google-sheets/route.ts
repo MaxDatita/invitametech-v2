@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { getEventData, getTicketsByEmail, markTicketsAsSent } from '@/services/googleSheet';
+import { getEventData, getUnsentTickets, markTicketsAsSent } from '@/services/googleSheet';
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
@@ -11,7 +11,7 @@ export async function GET(request: Request) {
 
   try {
     const eventData = await getEventData();
-    const tickets = await getTicketsByEmail(email);
+    const tickets = await getUnsentTickets(email);
     return NextResponse.json({ eventData, tickets });
   } catch (error) {
     console.error('Error:', error);
