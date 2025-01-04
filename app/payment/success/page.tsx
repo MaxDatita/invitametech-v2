@@ -1,6 +1,6 @@
 'use client'
 
-import { Suspense, useEffect, useState } from 'react'
+import { Suspense, useEffect } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Card } from "@/components/ui/card"
 import { CheckCircle } from 'lucide-react'
@@ -9,7 +9,6 @@ import { sendTicketEmail } from '@/services/email'
 function SuccessContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
-  const [error, setError] = useState<string | null>(null)
   
   useEffect(() => {
     const saveInvitadoAndSendEmail = async () => {
@@ -41,17 +40,15 @@ function SuccessContent() {
         }, 3000);
 
         // El proceso de email continúa en segundo plano
-        await new Promise(resolve => setTimeout(resolve, 5000));
-        await sendTicketEmail({
+        sendTicketEmail({
           nombre,
           email,
           tipoTicket,
           quantity
-        });
+        }).catch(error => console.error('Error enviando el email:', error));
 
       } catch (error) {
         console.error('Error:', error)
-        // No mostramos el error ya que el usuario probablemente ya fue redirigido
       }
     };
 
@@ -84,7 +81,7 @@ export default function PaymentSuccessPage() {
   return (
     <Suspense fallback={
       <div className="min-h-screen pt-6 pb-6 pl-6 pr-6 bg-gradient-animation flex items-center justify-center">
-        <Card className="auth-card">
+        <Card className="auth-card rounded-xl">
           <div className="text-center">Procesando pago...</div>
         </Card>
       </div>

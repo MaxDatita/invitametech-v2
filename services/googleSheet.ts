@@ -58,10 +58,10 @@ export async function getTicketsByEmail(email: string): Promise<TicketData[]> {
       const enviado = row.get('Enviado');
       if (row.get('Email') === email && !enviado) {
         tickets.push({
-          ticketId: row.get('ID'),          // Columna B
-          ticketType: row.get('Ticket'),    // Columna H
-          qrCode: row.get('QR'),            // Columna Y
-          rowIndex: index + 2               // +2 porque las filas empiezan en 1 y hay encabezado
+          ticketId: row.get('ID'),
+          ticketType: row.get('Ticket'),
+          qrCode: row.get('QR').replace('@', ''),
+          rowIndex: index + 2
         });
       }
     });
