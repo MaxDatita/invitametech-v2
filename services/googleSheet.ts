@@ -10,9 +10,13 @@ interface TicketData {
 
 // Crear una única instancia de JWT
 const getJWTClient = () => {
+  const key = process.env.GOOGLE_PRIVATE_KEY?.split(String.raw`\n`).join('\n');
+  console.log('GOOGLE_SERVICE_ACCOUNT_EMAIL:', process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL);
+  console.log('GOOGLE_PRIVATE_KEY:', key ? 'Key is set' : 'Key is missing');
+  
   return new JWT({
     email: process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
-    key: process.env.GOOGLE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
+    key,
     scopes: ['https://www.googleapis.com/auth/spreadsheets'],
   });
 };
