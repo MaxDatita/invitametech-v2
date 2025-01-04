@@ -14,11 +14,16 @@ interface Ticket {
   rowIndex: number;
 }
 
+interface EventData {
+  eventName: string;
+  organizerEmail: string;
+}
+
 export async function sendTicketEmail(data: TicketEmailData) {
   try {
     // Obtener datos de Google Sheets
     const googleResponse = await fetch(`/api/google-sheets?email=${data.email}`);
-    const { eventData, tickets } = await googleResponse.json();
+    const { eventData, tickets } = await googleResponse.json() as { eventData: EventData; tickets: Ticket[] };
 
     if (!tickets || tickets.length === 0) {
       console.log('No hay tickets pendientes de envío para este email');
@@ -35,11 +40,11 @@ export async function sendTicketEmail(data: TicketEmailData) {
     });
 
     // Creamos el HTML agrupando por tipo de ticket
-    const ticketsHtml = Object.entries(ticketsByType).map(([type, tickets]) => `
+    const ticketsHtml = Object.entries(ticketsByType).map(([type, typeTickets]: [string, Ticket[]]) => `
       <div style="margin-bottom: 30px;">
         <h3 style="color: #ff7e33;">Tickets ${type}</h3>
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px;">
-          ${tickets.map(ticket => `
+          ${typeTickets.map((ticket: Ticket) => `
             <div style="border: 1px solid #ddd; padding: 15px; border-radius: 8px; text-align: center;">
               <p style="margin: 0 0 10px 0;">ID: ${ticket.ticketId}</p>
               <img src="${ticket.qrCode}" alt="QR Code" style="width: 150px; height: 150px;"/>
@@ -108,7 +113,7 @@ export async function sendTicketEmail(data: TicketEmailData) {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          rowIndexes: tickets.map(ticket => ticket.rowIndex)
+          rowIndexes: tickets.map((ticket: Ticket) => ticket.rowIndex)
         }),
       });
     }
