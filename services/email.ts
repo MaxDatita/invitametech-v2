@@ -1,11 +1,17 @@
 import axios from 'axios';
 
-
 interface TicketEmailData {
   nombre: string;
   email: string;
   tipoTicket: string;
   quantity: number;
+}
+
+interface Ticket {
+  ticketId: string;
+  ticketType: string;
+  qrCode: string;
+  rowIndex: number;
 }
 
 export async function sendTicketEmail(data: TicketEmailData) {
@@ -20,8 +26,8 @@ export async function sendTicketEmail(data: TicketEmailData) {
     }
 
     // Agrupamos los tickets por tipo para mostrarlos organizados
-    const ticketsByType: { [key: string]: typeof tickets } = {};
-    tickets.forEach(ticket => {
+    const ticketsByType: { [key: string]: Ticket[] } = {};
+    tickets.forEach((ticket: Ticket) => {
       if (!ticketsByType[ticket.ticketType]) {
         ticketsByType[ticket.ticketType] = [];
       }
