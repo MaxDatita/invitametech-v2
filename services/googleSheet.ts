@@ -59,43 +59,38 @@ export async function getUnsentTickets(email: string): Promise<TicketData[]> {
     const rows = await sheet.getRows();
     const tickets: TicketData[] = [];
 
-    console.log(`Buscando tickets no enviados para email: ${email}`);
-
     rows.forEach((row, index) => {
-      const rowEmail = row.get('Email')?.trim();
-      const enviado = row.get('Enviado');
-      const id = row.get('ID');
-      const qrCode = row.get('QR');
-      const ticketType = row.get('Ticket');
+      const rowEmail = row.get('Email')?.trim();  // Columna D (texto)
+      const enviado = row.get('Email Enviado');         // Columna I (checkbox)
+      const id = row.get('ID');                   // Columna B (número)
+      const qrCode = row.get('QR model');               // Columna Y (texto con URL)
 
-      console.log(`Revisando fila ${index + 2}:`, {
-        email: rowEmail,
-        enviado: enviado ? 'Sí' : 'No',
-        id,
-        tipoTicket: ticketType
+      // Validaciones específicas
+      const isValidId = !isNaN(Number(id));
+      const isNotSent = !enviado || enviado === '' || enviado === false;
+
+      console.log(`Fila ${index + 2}:`, {
+        rowEmail,
+        emailBuscado: email,
+        coincide: rowEmail === email,
+        idValido: isValidId,
+        noEnviado: isNotSent
       });
 
-      // Solo incluimos tickets que:
-      // 1. Coincidan con el email
-      // 2. No estén marcados como enviados
-      // 3. Tengan ID y código QR válidos
       if (
         rowEmail === email && 
-        (!enviado || enviado === '') && 
-        id && 
-        qrCode
+        isNotSent && 
+        isValidId
       ) {
-        console.log(`Encontrado ticket válido en fila ${index + 2}`);
         tickets.push({
           ticketId: id,
-          ticketType: ticketType || 'General',
+          ticketType: row.get('Ticket'),
           qrCode: qrCode.replace('@', ''),
           rowIndex: index + 2
         });
       }
     });
 
-    console.log(`Total de tickets encontrados: ${tickets.length}`);
     return tickets;
   } catch (error) {
     console.error('Error obteniendo tickets:', error);
