@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { getEventData, getTicketsByEmail, markTicketsAsSent } from './googleSheet';
+
 
 interface TicketEmailData {
   nombre: string;
@@ -10,8 +10,9 @@ interface TicketEmailData {
 
 export async function sendTicketEmail(data: TicketEmailData) {
   try {
-    const response = await fetch(`/api/google-sheets?email=${data.email}`);
-    const { eventData, tickets } = await response.json();
+    // Obtener datos de Google Sheets
+    const googleResponse = await fetch(`/api/google-sheets?email=${data.email}`);
+    const { eventData, tickets } = await googleResponse.json();
 
     if (!tickets || tickets.length === 0) {
       console.log('No hay tickets pendientes de envío para este email');
@@ -48,7 +49,7 @@ export async function sendTicketEmail(data: TicketEmailData) {
           <img src="https://datitatech.com/eventechy-logo.png" alt="Eventechy" style="width: 150px;"/>
         </div>
         
-        <h2 style="color: #ff7e33;">Tickets del evento: ${eventName}</h2>
+        <h2 style="color: #ff7e33;">Tickets del evento: ${eventData.eventName}</h2>
         
         <p>Hola {{nombre}}! Te acercamos tus entradas. Debes presentarlas en puerta.</p>
         
@@ -61,7 +62,7 @@ export async function sendTicketEmail(data: TicketEmailData) {
         </div>
         
         <div style="text-align: center; margin-top: 20px;">
-          <a href="mailto:${organizerEmail}" style="background-color: #ff7e33; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">Contactar Soporte</a>
+          <a href="mailto:${eventData.organizerEmail}" style="background-color: #ff7e33; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">Contactar Soporte</a>
         </div>
         
         <div style="text-align: center; margin-top: 20px;">
@@ -73,7 +74,7 @@ export async function sendTicketEmail(data: TicketEmailData) {
     const payload = JSON.stringify({
       from: "tickets@eventechy.com",
       to: data.email,
-      subject: `Tus tickets para ${eventName}`,
+      subject: `Tus tickets para ${eventData.eventName}`,
       html: emailHtml,
       substitutions: {
         nombre: data.nombre
@@ -91,10 +92,10 @@ export async function sendTicketEmail(data: TicketEmailData) {
       data: payload
     };
 
-    const response = await axios(config);
-    console.log('Respuesta de Envialo Simple:', response.data);
+    const emailResponse = await axios(config);
+    console.log('Respuesta de Envialo Simple:', emailResponse.data);
 
-    if (response.data.success) {
+    if (emailResponse.data.success) {
       await fetch('/api/google-sheets', {
         method: 'POST',
         headers: {
@@ -106,7 +107,7 @@ export async function sendTicketEmail(data: TicketEmailData) {
       });
     }
 
-    return response.data;
+    return emailResponse.data;
   } catch (error) {
     if (axios.isAxiosError(error)) {
       console.error('Error enviando el email:', error);
