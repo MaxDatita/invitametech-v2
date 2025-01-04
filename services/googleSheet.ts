@@ -59,22 +59,31 @@ export async function getUnsentTickets(email: string): Promise<TicketData[]> {
     const rows = await sheet.getRows();
     const tickets: TicketData[] = [];
 
+    console.log('Email buscado:', email);
+
     rows.forEach((row, index) => {
       const rowEmail = row.get('Email')?.trim();  // Columna D (texto)
-      const enviado = row.get('Email Enviado');         // Columna I (checkbox)
+      const enviado = row.get('Email Enviado');   // Columna I (checkbox)
       const id = row.get('ID');                   // Columna B (número)
-      const qrCode = row.get('QR model');               // Columna Y (texto con URL)
+      const qrCode = row.get('QR model');         // Columna Y (texto con URL)
 
       // Validaciones específicas
       const isValidId = !isNaN(Number(id));
-      const isNotSent = !enviado || enviado === '' || enviado === false;
+      // Un checkbox en Google Sheets puede tener estos valores: TRUE, FALSE, o vacío
+      const isNotSent = enviado !== 'TRUE' && enviado !== true;
 
       console.log(`Fila ${index + 2}:`, {
         rowEmail,
         emailBuscado: email,
         coincide: rowEmail === email,
         idValido: isValidId,
-        noEnviado: isNotSent
+        enviado: enviado,
+        rawValues: {
+          email: rowEmail,
+          enviado: enviado,
+          id: id,
+          qrCode: qrCode
+        }
       });
 
       if (
@@ -82,15 +91,23 @@ export async function getUnsentTickets(email: string): Promise<TicketData[]> {
         isNotSent && 
         isValidId
       ) {
+        console.log(`✅ Ticket válido encontrado en fila ${index + 2}`);
         tickets.push({
           ticketId: id,
           ticketType: row.get('Ticket'),
           qrCode: qrCode.replace('@', ''),
           rowIndex: index + 2
         });
+      } else {
+        console.log(`❌ Ticket no válido en fila ${index + 2}:`, {
+          coincideEmail: rowEmail === email,
+          noEnviado: isNotSent,
+          idValido: isValidId
+        });
       }
     });
 
+    console.log(`Total tickets encontrados: ${tickets.length}`);
     return tickets;
   } catch (error) {
     console.error('Error obteniendo tickets:', error);
