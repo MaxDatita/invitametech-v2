@@ -6,6 +6,28 @@ const nextConfig = {
     GOOGLE_PRIVATE_KEY: process.env.GOOGLE_PRIVATE_KEY,
     GOOGLE_SHEET_ID: process.env.GOOGLE_SHEET_ID,
   },
+  async headers() {
+    return [
+      {
+        // Aplicar estos headers a todas las rutas
+        source: '/:path*',
+        headers: [
+          {
+            key: 'Access-Control-Allow-Origin',
+            value: '*'
+          },
+          {
+            key: 'Access-Control-Allow-Methods',
+            value: 'GET, POST, PUT, DELETE, OPTIONS'
+          },
+          {
+            key: 'Access-Control-Allow-Headers',
+            value: 'X-Requested-With, Content-Type, Authorization'
+          }
+        ]
+      }
+    ]
+  },
   images: {
     unoptimized: true,
     domains: ['eventechy.com', 'invitacion-v2.eventechy.com'],
