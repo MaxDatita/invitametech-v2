@@ -1,5 +1,3 @@
-
-
 interface TicketEmailData {
   nombre: string;
   email: string;
@@ -47,7 +45,7 @@ export async function sendTicketEmail(data: TicketEmailData) {
           ${typeTickets.map((ticket: Ticket) => `
             <div style="border: 1px solid #ddd; padding: 15px; border-radius: 8px; text-align: center;">
               <p style="margin: 0 0 10px 0;">ID: ${ticket.ticketId}</p>
-              <img src="${ticket.qrCode}" alt="QR Code" style="width: 150px; height: 150px;"/>
+              <img src="${ticket.qrCode}" alt="QR Code" style="width: 180px; height: 180px;"/>
             </div>
           `).join('')}
         </div>
@@ -102,7 +100,8 @@ export async function sendTicketEmail(data: TicketEmailData) {
     console.log('Respuesta del servidor de email:', responseData);
 
     if (responseData.success) {
-      await fetch('/api/google-sheets', {
+      console.log('Email enviado exitosamente, marcando tickets como enviados...');
+      const markResponse = await fetch('/api/google-sheets', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -111,6 +110,9 @@ export async function sendTicketEmail(data: TicketEmailData) {
           rowIndexes: tickets.map((ticket: Ticket) => ticket.rowIndex)
         }),
       });
+
+      const markResult = await markResponse.json();
+      console.log('Resultado de marcar tickets:', markResult);
     }
 
     return responseData;

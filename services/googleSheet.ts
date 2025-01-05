@@ -123,26 +123,37 @@ export async function markTicketsAsSent(rowIndexes: number[]) {
       throw new Error('No se encontró la hoja "Invitados"');
     }
 
+    console.log('Marcando como enviados los tickets en filas:', rowIndexes);
+
     // Cargar y actualizar celdas en una sola operación
     await sheet.loadCells({
       startRowIndex: Math.min(...rowIndexes) - 1,
       endRowIndex: Math.max(...rowIndexes),
-      startColumnIndex: 8,  // Columna I (0-based)
+      startColumnIndex: 8,  // Columna I (0-based) - Email Enviado
       endColumnIndex: 9,
     });
 
     // Actualizar todas las celdas de una vez
-    rowIndexes.forEach(rowIndex => {
-      const cell = sheet.getCell(rowIndex - 1, 8);
-      cell.value = true;
-    });
+    for (const rowIndex of rowIndexes) {
+      const cell = sheet.getCell(rowIndex - 1, 8); // Columna I (0-based)
+      cell.value = 'TRUE';  // Usamos 'TRUE' en lugar de true para asegurar compatibilidad
+      console.log(`Marcando fila ${rowIndex} como enviada`);
+    }
 
     // Guardar todos los cambios de una vez
     await sheet.saveUpdatedCells();
+    console.log('Cambios guardados exitosamente');
     
+    // Verificar que los cambios se guardaron
+    const rows = await sheet.getRows();
+    rowIndexes.forEach(rowIndex => {
+      const enviado = rows[rowIndex - 2].get('Email Enviado');
+      console.log(`Verificación - Fila ${rowIndex}: Email Enviado = ${enviado}`);
+    });
+
     return true;
   } catch (error) {
-    console.error('Error marking tickets as sent:', error);
+    console.error('Error marcando tickets como enviados:', error);
     throw error;
   }
 } 
