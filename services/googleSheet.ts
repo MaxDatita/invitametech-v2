@@ -166,12 +166,13 @@ export async function markTicketsAsSent(rowIndexes: number[]) {
         stack: error.stack,
         rowIndexes
       });
+      throw new Error(`Error al marcar tickets como enviados: ${error.message}`);
     } else {
       console.error('Error al marcar tickets como enviados:', {
         error: String(error),
         rowIndexes
       });
+      throw new Error(`Error al marcar tickets como enviados: ${String(error)}`);
     }
-    throw new Error(`Error al marcar tickets como enviados: ${error.message}`);
   }
 } 
