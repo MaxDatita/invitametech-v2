@@ -146,10 +146,8 @@ export async function markTicketsAsSent(rowIndexes: number[]) {
           enviado: row.get('Email Enviado')
         });
 
-        // Actualizar el valor
-        row.set({
-          'Email Enviado': 'TRUE'
-        });
+        // Actualizar el valor - usando el método correcto
+        row.set('Email Enviado', 'TRUE');
 
         // Guardar la fila
         await row.save();
