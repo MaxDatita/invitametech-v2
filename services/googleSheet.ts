@@ -125,25 +125,35 @@ export async function markTicketsAsSent(rowIndexes: number[]) {
 
     console.log('Marcando como enviados los tickets en filas:', rowIndexes);
 
+    // Obtener el índice de la columna "Email Enviado"
+    const headers = await sheet.getRows(0, 1); // Obtener la primera fila (headers)
+    const emailEnviadoIndex = headers[0].keys().indexOf('Email Enviado');
+    
+    if (emailEnviadoIndex === -1) {
+      throw new Error('No se encontró la columna "Email Enviado"');
+    }
+
+    console.log('Índice de columna Email Enviado:', emailEnviadoIndex);
+
     // Cargar y actualizar celdas en una sola operación
     await sheet.loadCells({
       startRowIndex: Math.min(...rowIndexes) - 1,
       endRowIndex: Math.max(...rowIndexes),
-      startColumnIndex: 8,  // Columna I (0-based) - Email Enviado
-      endColumnIndex: 9,
+      startColumnIndex: emailEnviadoIndex,
+      endColumnIndex: emailEnviadoIndex + 1,
     });
 
     // Actualizar todas las celdas de una vez
     for (const rowIndex of rowIndexes) {
-      const cell = sheet.getCell(rowIndex - 1, 8); // Columna I (0-based)
-      cell.value = 'TRUE';  // Usamos 'TRUE' en lugar de true para asegurar compatibilidad
+      const cell = sheet.getCell(rowIndex - 1, emailEnviadoIndex);
+      cell.value = true; // Google Sheets API convertirá esto automáticamente a un checkbox marcado
       console.log(`Marcando fila ${rowIndex} como enviada`);
     }
 
     // Guardar todos los cambios de una vez
     await sheet.saveUpdatedCells();
     console.log('Cambios guardados exitosamente');
-    
+
     // Verificar que los cambios se guardaron
     const rows = await sheet.getRows();
     rowIndexes.forEach(rowIndex => {
@@ -154,6 +164,7 @@ export async function markTicketsAsSent(rowIndexes: number[]) {
     return true;
   } catch (error) {
     console.error('Error marcando tickets como enviados:', error);
+    console.error('Detalles del error:', error);
     throw error;
   }
 } 

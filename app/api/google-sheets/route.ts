@@ -20,13 +20,29 @@ export async function GET(request: Request) {
 }
 
 export async function POST(request: Request) {
-  const { rowIndexes } = await request.json();
-
   try {
+    const { rowIndexes } = await request.json();
+    
+    console.log('Recibida solicitud para marcar filas:', rowIndexes);
+
+    if (!rowIndexes || !Array.isArray(rowIndexes)) {
+      return NextResponse.json(
+        { error: 'rowIndexes debe ser un array' },
+        { status: 400 }
+      );
+    }
+
     await markTicketsAsSent(rowIndexes);
-    return NextResponse.json({ success: true });
+    
+    return NextResponse.json({ 
+      success: true,
+      message: `Marcadas ${rowIndexes.length} filas como enviadas`
+    });
   } catch (error) {
-    console.error('Error:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    console.error('Error al marcar tickets como enviados:', error);
+    return NextResponse.json(
+      { error: 'Error al marcar tickets como enviados', details: error.message },
+      { status: 500 }
+    );
   }
 } 
