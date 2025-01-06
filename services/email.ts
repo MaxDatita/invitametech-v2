@@ -1,3 +1,5 @@
+import axios from 'axios';
+
 interface TicketEmailData {
   nombre: string;
   email: string;
@@ -17,6 +19,20 @@ interface EventData {
   organizerEmail: string;
 }
 
+// Función auxiliar para convertir imagen a base64
+async function imageToBase64(url: string): Promise<string> {
+  try {
+    const response = await axios.get(url, {
+      responseType: 'arraybuffer'
+    });
+    const buffer = Buffer.from(response.data, 'binary');
+    return `data:image/png;base64,${buffer.toString('base64')}`;
+  } catch (error) {
+    console.error('Error convirtiendo imagen a base64:', error);
+    throw error;
+  }
+}
+
 export async function sendTicketEmail(data: TicketEmailData) {
   try {
     // Obtener datos de Google Sheets
@@ -28,21 +44,32 @@ export async function sendTicketEmail(data: TicketEmailData) {
       return null;
     }
 
+    // Convertir QRs a base64
+    const ticketsWithBase64QR = await Promise.all(
+      tickets.map(async (ticket) => ({
+        ...ticket,
+        qrCode: await imageToBase64(ticket.qrCode)
+      }))
+    );
+
+    // Convertir logo a base64
+    const logoBase64 = await imageToBase64('https://datitatech.com/eventechy-logo.png');
+
     // Agrupamos los tickets por tipo para mostrarlos organizados
-    const ticketsByType: { [key: string]: Ticket[] } = {};
-    tickets.forEach((ticket: Ticket) => {
+    const ticketsByType: { [key: string]: typeof ticketsWithBase64QR[0][] } = {};
+    ticketsWithBase64QR.forEach((ticket) => {
       if (!ticketsByType[ticket.ticketType]) {
         ticketsByType[ticket.ticketType] = [];
       }
       ticketsByType[ticket.ticketType].push(ticket);
     });
 
-    // Creamos el HTML agrupando por tipo de ticket
-    const ticketsHtml = Object.entries(ticketsByType).map(([type, typeTickets]: [string, Ticket[]]) => `
+    // Creamos el HTML con las imágenes en base64
+    const ticketsHtml = Object.entries(ticketsByType).map(([type, typeTickets]) => `
       <div style="margin-bottom: 30px;">
         <h3 style="color: #ff7e33;">Tickets ${type}</h3>
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px;">
-          ${typeTickets.map((ticket: Ticket) => `
+          ${typeTickets.map((ticket) => `
             <div style="border: 1px solid #ddd; padding: 15px; border-radius: 8px; text-align: center;">
               <p style="margin: 0 0 10px 0;">ID: ${ticket.ticketId}</p>
               <img src="${ticket.qrCode}" alt="QR Code" style="width: 180px; height: 180px;"/>
@@ -55,7 +82,7 @@ export async function sendTicketEmail(data: TicketEmailData) {
     const emailHtml = `
       <div style="font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto;">
         <div style="text-align: center; margin-bottom: 30px;">
-          <img src="https://datitatech.com/eventechy-logo.png" alt="Eventechy" style="width: 200px;"/>
+          <img src="${logoBase64}" alt="Eventechy" style="width: 200px;"/>
         </div>
         
         <h2 style="color: #ff7e33;">Tickets del evento: ${eventData.eventName}</h2>
