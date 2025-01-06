@@ -125,9 +125,13 @@ export async function markTicketsAsSent(rowIndexes: number[]) {
 
     console.log('Marcando como enviados los tickets en filas:', rowIndexes);
 
-    // Obtener el índice de la columna "Email Enviado"
-    const headers = await sheet.getRows(0, 1); // Obtener la primera fila (headers)
-    const emailEnviadoIndex = headers[0].keys().indexOf('Email Enviado');
+    // Cargar todas las filas para obtener los headers
+    const rows = await sheet.getRows();
+    const headerRow = rows[0];
+    
+    // Encontrar el índice de la columna "Email Enviado"
+    const headers = Object.keys(headerRow._rawData);
+    const emailEnviadoIndex = headers.findIndex(header => header === 'Email Enviado');
     
     if (emailEnviadoIndex === -1) {
       throw new Error('No se encontró la columna "Email Enviado"');
@@ -146,8 +150,8 @@ export async function markTicketsAsSent(rowIndexes: number[]) {
     // Actualizar todas las celdas de una vez
     for (const rowIndex of rowIndexes) {
       const cell = sheet.getCell(rowIndex - 1, emailEnviadoIndex);
-      cell.value = true; // Google Sheets API convertirá esto automáticamente a un checkbox marcado
-      console.log(`Marcando fila ${rowIndex} como enviada`);
+      cell.value = true;
+      console.log(`Marcando fila ${rowIndex} como enviada en columna ${emailEnviadoIndex}`);
     }
 
     // Guardar todos los cambios de una vez
@@ -155,16 +159,20 @@ export async function markTicketsAsSent(rowIndexes: number[]) {
     console.log('Cambios guardados exitosamente');
 
     // Verificar que los cambios se guardaron
-    const rows = await sheet.getRows();
+    const updatedRows = await sheet.getRows();
     rowIndexes.forEach(rowIndex => {
-      const enviado = rows[rowIndex - 2].get('Email Enviado');
+      const enviado = updatedRows[rowIndex - 1].get('Email Enviado');
       console.log(`Verificación - Fila ${rowIndex}: Email Enviado = ${enviado}`);
     });
 
     return true;
   } catch (error) {
     console.error('Error marcando tickets como enviados:', error);
-    console.error('Detalles del error:', error);
+    console.error('Detalles del error:', {
+      message: error.message,
+      stack: error.stack,
+      error
+    });
     throw error;
   }
 } 
