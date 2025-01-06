@@ -125,43 +125,31 @@ export async function markTicketsAsSent(rowIndexes: number[]) {
 
     console.log('Marcando como enviados los tickets en filas:', rowIndexes);
 
-    // Cargar todas las filas para obtener los headers
+    // Obtener las filas que necesitamos actualizar
     const rows = await sheet.getRows();
-    const headerRow = rows[0];
     
-    // Encontrar el índice de la columna "Email Enviado"
-    const headers = Object.keys(headerRow._rawData);
-    const emailEnviadoIndex = headers.findIndex(header => header === 'Email Enviado');
-    
-    if (emailEnviadoIndex === -1) {
-      throw new Error('No se encontró la columna "Email Enviado"');
-    }
-
-    console.log('Índice de columna Email Enviado:', emailEnviadoIndex);
-
-    // Cargar y actualizar celdas en una sola operación
-    await sheet.loadCells({
-      startRowIndex: Math.min(...rowIndexes) - 1,
-      endRowIndex: Math.max(...rowIndexes),
-      startColumnIndex: emailEnviadoIndex,
-      endColumnIndex: emailEnviadoIndex + 1,
-    });
-
-    // Actualizar todas las celdas de una vez
+    // Actualizar cada fila directamente
     for (const rowIndex of rowIndexes) {
-      const cell = sheet.getCell(rowIndex - 1, emailEnviadoIndex);
-      cell.value = true;
-      console.log(`Marcando fila ${rowIndex} como enviada en columna ${emailEnviadoIndex}`);
+      // Ajustamos el índice porque rowIndex es 1-based y el array es 0-based
+      const row = rows[rowIndex - 2];  // -2 porque rowIndex empieza en 2 (la primera fila es headers)
+      if (row) {
+        row.set('Email Enviado', true);
+        console.log(`Marcando fila ${rowIndex} como enviada`);
+      } else {
+        console.error(`No se encontró la fila ${rowIndex}`);
+      }
     }
 
     // Guardar todos los cambios de una vez
-    await sheet.saveUpdatedCells();
+    const savePromises = rowIndexes.map(rowIndex => rows[rowIndex - 2].save());
+    await Promise.all(savePromises);
+
     console.log('Cambios guardados exitosamente');
 
     // Verificar que los cambios se guardaron
     const updatedRows = await sheet.getRows();
     rowIndexes.forEach(rowIndex => {
-      const enviado = updatedRows[rowIndex - 1].get('Email Enviado');
+      const enviado = updatedRows[rowIndex - 2].get('Email Enviado');
       console.log(`Verificación - Fila ${rowIndex}: Email Enviado = ${enviado}`);
     });
 
@@ -170,8 +158,7 @@ export async function markTicketsAsSent(rowIndexes: number[]) {
     console.error('Error marcando tickets como enviados:', error);
     console.error('Detalles del error:', {
       message: error.message,
-      stack: error.stack,
-      error
+      stack: error.stack
     });
     throw error;
   }
