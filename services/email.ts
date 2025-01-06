@@ -22,18 +22,53 @@ interface EventData {
 // Función auxiliar para convertir imagen a base64
 async function imageToBase64(url: string): Promise<string> {
   try {
-    const response = await axios.get(url, {
-      responseType: 'arraybuffer'
+    console.log('Intentando convertir a base64:', url);
+
+    // Si la URL está vacía o es inválida, lanzar error
+    if (!url) {
+      throw new Error('URL de imagen vacía');
+    }
+
+    // Asegurarnos de que la URL es válida
+    const validUrl = url.startsWith('http') ? url : `https://${url}`;
+
+    const response = await axios.get(validUrl, {
+      responseType: 'arraybuffer',
+      validateStatus: function (status) {
+        return status >= 200 && status < 300; // Aceptar solo respuestas exitosas
+      },
+      timeout: 5000 // 5 segundos de timeout
     });
+
+    if (!response.data) {
+      throw new Error('No se recibieron datos de la imagen');
+    }
+
     const buffer = Buffer.from(response.data, 'binary');
-    return `data:image/png;base64,${buffer.toString('base64')}`;
+    const base64 = buffer.toString('base64');
+
+    // Verificar que tenemos datos en base64
+    if (!base64) {
+      throw new Error('Error al convertir imagen a base64');
+    }
+
+    console.log('✅ Imagen convertida exitosamente a base64');
+    return `data:image/png;base64,${base64}`;
+
   } catch (error) {
     if (error instanceof Error) {
-      console.error('Error convirtiendo imagen a base64:', error.message);
+      console.error('Error convirtiendo imagen a base64:', {
+        url,
+        error: error.message,
+        stack: error.stack
+      });
       throw new Error(`Error convirtiendo imagen a base64: ${error.message}`);
     } else {
-      console.error('Error convirtiendo imagen a base64:', String(error));
-      throw new Error(`Error convirtiendo imagen a base64: ${String(error)}`);
+      console.error('Error desconocido convirtiendo imagen a base64:', {
+        url,
+        error: String(error)
+      });
+      throw new Error(`Error desconocido convirtiendo imagen a base64: ${String(error)}`);
     }
   }
 }
@@ -51,10 +86,19 @@ export async function sendTicketEmail(data: TicketEmailData) {
 
     // Convertir QRs a base64
     const ticketsWithBase64QR = await Promise.all(
-      tickets.map(async (ticket) => ({
-        ...ticket,
-        qrCode: await imageToBase64(ticket.qrCode)
-      }))
+      tickets.map(async (ticket) => {
+        try {
+          console.log(`Procesando QR para ticket ${ticket.ticketId}`);
+          const qrBase64 = await imageToBase64(ticket.qrCode);
+          return {
+            ...ticket,
+            qrCode: qrBase64
+          };
+        } catch (error) {
+          console.error(`Error procesando QR para ticket ${ticket.ticketId}:`, error);
+          throw new Error(`Error procesando QR para ticket ${ticket.ticketId}: ${error instanceof Error ? error.message : String(error)}`);
+        }
+      })
     );
 
     // Convertir logo a base64
