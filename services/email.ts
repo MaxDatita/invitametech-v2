@@ -99,20 +99,34 @@ export async function sendTicketEmail(data: TicketEmailData) {
     const responseData = await emailResponse.json();
     console.log('Respuesta del servidor de email:', responseData);
 
-    if (responseData.success) {
-      console.log('Email enviado exitosamente, marcando tickets como enviados...');
+    // Verificamos si el email fue encolado correctamente
+    if (responseData.queued) {
+      console.log('Email encolado exitosamente, intentando marcar tickets...', {
+        emailId: responseData.id,
+        rowIndexes: tickets.map(ticket => ticket.rowIndex)
+      });
+
+      // Marcar los tickets como enviados
       const markResponse = await fetch('/api/google-sheets', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          rowIndexes: tickets.map((ticket: Ticket) => ticket.rowIndex)
+          rowIndexes: tickets.map(ticket => ticket.rowIndex)
         }),
       });
 
       const markResult = await markResponse.json();
       console.log('Resultado de marcar tickets:', markResult);
+
+      if (!markResult.success) {
+        console.error('Error al marcar tickets:', markResult.error);
+        throw new Error(markResult.error);
+      }
+    } else {
+      console.error('El email no fue encolado correctamente:', responseData);
+      throw new Error('Error al encolar el email');
     }
 
     return responseData;
