@@ -28,8 +28,13 @@ async function imageToBase64(url: string): Promise<string> {
     const buffer = Buffer.from(response.data, 'binary');
     return `data:image/png;base64,${buffer.toString('base64')}`;
   } catch (error) {
-    console.error('Error convirtiendo imagen a base64:', error);
-    throw error;
+    if (error instanceof Error) {
+      console.error('Error convirtiendo imagen a base64:', error.message);
+      throw new Error(`Error convirtiendo imagen a base64: ${error.message}`);
+    } else {
+      console.error('Error convirtiendo imagen a base64:', String(error));
+      throw new Error(`Error convirtiendo imagen a base64: ${String(error)}`);
+    }
   }
 }
 
