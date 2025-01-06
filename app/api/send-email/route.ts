@@ -22,8 +22,11 @@ export async function POST(request: Request) {
     return NextResponse.json(response.data);
   } catch (error) {
     console.error('Error sending email:', error);
+
+    const errorMessage = error instanceof Error ? error.message : String(error);
+
     return NextResponse.json(
-      { error: 'Error sending email', details: error.message },
+      { error: 'Error sending email', details: errorMessage },
       { status: 500 }
     );
   }
