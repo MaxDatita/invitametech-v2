@@ -123,43 +123,50 @@ export async function markTicketsAsSent(rowIndexes: number[]) {
       throw new Error('No se encontró la hoja "Invitados"');
     }
 
-    console.log('Marcando como enviados los tickets en filas:', rowIndexes);
+    console.log('Intentando marcar como enviados los tickets en filas:', rowIndexes);
 
-    // Obtener las filas que necesitamos actualizar
+    // Obtener todas las filas
     const rows = await sheet.getRows();
     
-    // Actualizar cada fila directamente
+    // Actualizar cada fila
     for (const rowIndex of rowIndexes) {
-      // Ajustamos el índice porque rowIndex es 1-based y el array es 0-based
-      const row = rows[rowIndex - 2];  // -2 porque rowIndex empieza en 2 (la primera fila es headers)
-      if (row) {
-        row.set('Email Enviado', true);
-        console.log(`Marcando fila ${rowIndex} como enviada`);
-      } else {
-        console.error(`No se encontró la fila ${rowIndex}`);
+      try {
+        // Ajustar el índice (restar 2 porque la primera fila es header y los índices empiezan en 0)
+        const adjustedIndex = rowIndex - 2;
+        const row = rows[adjustedIndex];
+        
+        if (!row) {
+          console.error(`Fila ${rowIndex} no encontrada (índice ajustado: ${adjustedIndex})`);
+          continue;
+        }
+
+        // Imprimir el estado actual de la fila
+        console.log(`Estado actual de fila ${rowIndex}:`, {
+          email: row.get('Email'),
+          enviado: row.get('Email Enviado')
+        });
+
+        // Actualizar el valor
+        row.set({
+          'Email Enviado': 'TRUE'
+        });
+
+        // Guardar la fila
+        await row.save();
+        
+        console.log(`✅ Fila ${rowIndex} marcada como enviada`);
+      } catch (rowError) {
+        console.error(`Error al procesar fila ${rowIndex}:`, rowError);
       }
     }
 
-    // Guardar todos los cambios de una vez
-    const savePromises = rowIndexes.map(rowIndex => rows[rowIndex - 2].save());
-    await Promise.all(savePromises);
-
-    console.log('Cambios guardados exitosamente');
-
-    // Verificar que los cambios se guardaron
-    const updatedRows = await sheet.getRows();
-    rowIndexes.forEach(rowIndex => {
-      const enviado = updatedRows[rowIndex - 2].get('Email Enviado');
-      console.log(`Verificación - Fila ${rowIndex}: Email Enviado = ${enviado}`);
-    });
-
     return true;
   } catch (error) {
-    console.error('Error marcando tickets como enviados:', error);
-    console.error('Detalles del error:', {
-      message: error.message,
-      stack: error.stack
+    console.error('Error al marcar tickets como enviados:', {
+      error: error.message,
+      stack: error.stack,
+      rowIndexes
     });
-    throw error;
+    throw new Error(`Error al marcar tickets como enviados: ${error.message}`);
   }
 } 

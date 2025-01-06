@@ -27,21 +27,30 @@ export async function POST(request: Request) {
 
     if (!rowIndexes || !Array.isArray(rowIndexes)) {
       return NextResponse.json(
-        { error: 'rowIndexes debe ser un array' },
+        { error: 'rowIndexes debe ser un array válido' },
         { status: 400 }
       );
     }
 
-    await markTicketsAsSent(rowIndexes);
+    const result = await markTicketsAsSent(rowIndexes);
     
-    return NextResponse.json({ 
-      success: true,
-      message: `Marcadas ${rowIndexes.length} filas como enviadas`
-    });
+    if (result) {
+      return NextResponse.json({ 
+        success: true,
+        message: `Marcadas ${rowIndexes.length} filas como enviadas`
+      });
+    } else {
+      throw new Error('No se pudo completar la operación');
+    }
   } catch (error) {
-    console.error('Error al marcar tickets como enviados:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Error desconocido';
+    console.error('Error al marcar tickets como enviados:', errorMessage);
+    
     return NextResponse.json(
-      { error: 'Error al marcar tickets como enviados', details: error.message },
+      { 
+        error: 'Error al marcar tickets como enviados',
+        details: errorMessage
+      },
       { status: 500 }
     );
   }
