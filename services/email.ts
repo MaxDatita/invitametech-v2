@@ -102,7 +102,7 @@ export async function sendTicketEmail(data: TicketEmailData) {
     );
 
     // En lugar de convertir el logo a base64, lo servimos desde nuestro dominio
-    const logoUrl = `${process.env.NEXT_PUBLIC_BASE_URL}/public/eventechy-logo.png`;
+    const logoUrl = `${process.env.NEXT_PUBLIC_BASE_URL}/eventechy-logo.png`;
 
     // Agrupamos los tickets por tipo para mostrarlos organizados
     const ticketsByType: { [key: string]: typeof ticketsWithBase64QR[0][] } = {};
