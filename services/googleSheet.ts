@@ -69,6 +69,7 @@ export async function getUnsentTickets(email: string): Promise<TicketData[]> {
 
       // Validaciones específicas
       const isValidId = !isNaN(Number(id));
+      // Un checkbox en Google Sheets puede tener estos valores: TRUE, FALSE, o vacío
       const isNotSent = enviado !== 'TRUE' && enviado !== true;
       const isValidQR = typeof qrCode === 'string' && qrCode.length > 0;
 

@@ -101,8 +101,8 @@ export async function sendTicketEmail(data: TicketEmailData) {
       })
     );
 
-    // Convertir logo a base64
-    const logoBase64 = await imageToBase64('https://datitatech.com/eventechy-logo.png');
+    // En lugar de convertir el logo a base64, lo servimos desde nuestro dominio
+    const logoUrl = `${process.env.NEXT_PUBLIC_BASE_URL}/public/eventechy-logo.png`;
 
     // Agrupamos los tickets por tipo para mostrarlos organizados
     const ticketsByType: { [key: string]: typeof ticketsWithBase64QR[0][] } = {};
@@ -113,7 +113,7 @@ export async function sendTicketEmail(data: TicketEmailData) {
       ticketsByType[ticket.ticketType].push(ticket);
     });
 
-    // Creamos el HTML con las imágenes en base64
+    // Creamos el HTML con las imágenes
     const ticketsHtml = Object.entries(ticketsByType).map(([type, typeTickets]) => `
       <div style="margin-bottom: 30px;">
         <h3 style="color: #ff7e33;">Tickets ${type}</h3>
@@ -131,7 +131,7 @@ export async function sendTicketEmail(data: TicketEmailData) {
     const emailHtml = `
       <div style="font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto;">
         <div style="text-align: center; margin-bottom: 30px;">
-          <img src="${logoBase64}" alt="Eventechy" style="width: 200px;"/>
+          <img src="${logoUrl}" alt="Eventechy" style="width: 200px;"/>
         </div>
         
         <h2 style="color: #ff7e33;">Tickets del evento: ${eventData.eventName}</h2>
