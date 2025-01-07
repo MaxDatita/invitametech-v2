@@ -69,8 +69,8 @@ export async function getUnsentTickets(email: string): Promise<TicketData[]> {
 
       // Validaciones específicas
       const isValidId = !isNaN(Number(id));
-      // Un checkbox en Google Sheets puede tener estos valores: TRUE, FALSE, o vacío
       const isNotSent = enviado !== 'TRUE' && enviado !== true;
+      const isValidQR = typeof qrCode === 'string' && qrCode.length > 0;
 
       console.log(`Fila ${index + 2}:`, {
         rowEmail,
@@ -78,6 +78,7 @@ export async function getUnsentTickets(email: string): Promise<TicketData[]> {
         coincide: rowEmail === email,
         idValido: isValidId,
         enviado: enviado,
+        qrCode: qrCode,
         rawValues: {
           email: rowEmail,
           enviado: enviado,
@@ -89,26 +90,35 @@ export async function getUnsentTickets(email: string): Promise<TicketData[]> {
       if (
         rowEmail === email && 
         isNotSent && 
-        isValidId
+        isValidId &&
+        isValidQR
       ) {
         console.log(`✅ Ticket válido encontrado en fila ${index + 2}`);
         tickets.push({
           ticketId: id,
           ticketType: row.get('Ticket'),
-          qrCode: qrCode.replace('@', ''),
+          qrCode: qrCode ? qrCode.replace('@', '') : '', // Validar antes de usar replace
           rowIndex: index + 2
         });
       } else {
         console.log(`❌ Ticket no válido en fila ${index + 2}:`, {
           coincideEmail: rowEmail === email,
           noEnviado: isNotSent,
-          idValido: isValidId
+          idValido: isValidId,
+          tieneQR: isValidQR
         });
       }
     });
 
-    console.log(`Total tickets encontrados: ${tickets.length}`);
-    return tickets;
+    // Validar que todos los tickets tengan QR válido
+    const validTickets = tickets.filter(ticket => ticket.qrCode);
+    
+    if (validTickets.length !== tickets.length) {
+      console.warn(`⚠️ Se encontraron ${tickets.length} tickets pero solo ${validTickets.length} tienen QR válido`);
+    }
+
+    console.log(`Total tickets válidos encontrados: ${validTickets.length}`);
+    return validTickets;
   } catch (error) {
     console.error('Error obteniendo tickets:', error);
     throw error;
