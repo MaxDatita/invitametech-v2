@@ -1,4 +1,4 @@
-import { GoogleSpreadsheet } from 'google-spreadsheet';
+import { GoogleSpreadsheet, GoogleSpreadsheetWorksheet } from 'google-spreadsheet';
 import { JWT } from 'google-auth-library';
 
 interface Message {
@@ -176,5 +176,80 @@ export async function getSellerToken(): Promise<string | null> {
   } catch (error) {
     console.error('Error getting seller token:', error);
     return null;
+  }
+} 
+
+// Función para generar ID único de 5 dígitos
+async function generateUniqueId(sheet: GoogleSpreadsheetWorksheet): Promise<string> {
+  try {
+    // Obtener todos los IDs existentes
+    const rows = await sheet.getRows();
+    const existingIds = rows.map(row => row.get('ID')).filter(Boolean);
+    
+    // Generar nuevo ID hasta que sea único
+    let newId;
+    do {
+      // Generar número aleatorio de 5 dígitos (10000 a 99999)
+      newId = Math.floor(10000 + Math.random() * 90000).toString();
+    } while (existingIds.includes(newId));
+    
+    return newId;
+  } catch (error) {
+    console.error('Error generando ID único:', error);
+    throw error;
+  }
+}
+
+// Función para generar fórmula de QR para una fila específica
+function generateQRFormula(rowNumber: number): string {
+  return `=HYPERLINK("https://quickchart.io/qr?text=ID:" & ENCODEURL(B${rowNumber}:B${rowNumber}) & ",Nombre:" & ENCODEURL(C${rowNumber}:C${rowNumber}) & "&size=150")`;
+}
+
+export async function registrarTickets(nombre: string, email: string, tipoTicket: string, cantidad: number) {
+  try {
+    const SCOPES = ['https://www.googleapis.com/auth/spreadsheets'];
+
+    const jwt = new JWT({
+      email: process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
+      key: process.env.GOOGLE_PRIVATE_KEY?.split(String.raw`\n`).join('\n'),
+      scopes: SCOPES,
+    });
+
+    const doc = new GoogleSpreadsheet(process.env.GOOGLE_SHEET_ID!, jwt);
+    await doc.loadInfo();
+
+    const sheet = doc.sheetsByTitle['Invitados'];
+    if (!sheet) {
+      throw new Error('No se encontró la hoja "Invitados"');
+    }
+
+    // Obtener el número total de filas actual
+    const rows = await sheet.getRows();
+    const startingRowNumber = rows.length + 2; // +2 porque la primera fila es header y los índices empiezan en 1
+
+    // Crear array de nuevas filas
+    const newRows = [];
+    for (let i = 0; i < cantidad; i++) {
+      const rowNumber = startingRowNumber + i;
+      const uniqueId = await generateUniqueId(sheet);
+      
+      newRows.push({
+        'Fecha': new Date().toLocaleDateString(),
+        'ID': uniqueId,
+        'Nombre': nombre,
+        'Email': email,
+        'Ticket': tipoTicket,
+        'QRimg': generateQRFormula(rowNumber)
+      });
+    }
+
+    // Agregar todas las filas de una vez
+    await sheet.addRows(newRows);
+    
+    console.log(`✅ Registrados ${cantidad} tickets para ${email}`);
+    return true;
+  } catch (error) {
+    console.error('Error registrando tickets:', error);
+    throw error;
   }
 } 
