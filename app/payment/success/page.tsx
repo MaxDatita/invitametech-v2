@@ -5,6 +5,47 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import { Card } from "@/components/ui/card"
 import { CheckCircle } from 'lucide-react'
 import { sendTicketEmail } from '@/services/email'
+import { registrarTickets } from '@/lib/google-sheets-registros'
+
+interface PaymentData {
+  nombre: string;
+  email: string;
+  tipoTicket: string;
+  cantidad: number;
+}
+
+async function handleSuccessfulPayment(paymentData: PaymentData) {
+  try {
+    const { nombre, email, tipoTicket, cantidad } = paymentData;
+    
+    console.log('Registrando tickets con datos:', {
+      nombre,
+      email,
+      tipoTicket,
+      cantidad
+    });
+
+    // Registrar los tickets en Google Sheets
+    await registrarTickets(
+      nombre,
+      email,
+      tipoTicket,
+      Number(cantidad)  // Asegurarnos que cantidad es un número
+    );
+
+    // Enviar email con los tickets
+    await sendTicketEmail({
+      nombre,
+      email,
+      tipoTicket,
+      quantity: Number(cantidad)
+    });
+
+  } catch (error) {
+    console.error('Error en el proceso de pago exitoso:', error);
+    throw error;
+  }
+}
 
 function SuccessContent() {
   const router = useRouter()
@@ -42,13 +83,11 @@ function SuccessContent() {
         await new Promise(resolve => setTimeout(resolve, 3000));
 
         // Enviamos el email con todos los tickets no enviados para este email
-        await sendTicketEmail({
+        await handleSuccessfulPayment({
           nombre,
           email,
           tipoTicket,
-          quantity
-        }).catch(error => {
-          console.error('Error enviando el email:', error);
+          cantidad: quantity
         });
 
       } catch (error) {

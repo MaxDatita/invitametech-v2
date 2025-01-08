@@ -207,6 +207,8 @@ function generateQRFormula(rowNumber: number): string {
 
 export async function registrarTickets(nombre: string, email: string, tipoTicket: string, cantidad: number) {
   try {
+    console.log('Iniciando registro de tickets:', { nombre, email, tipoTicket, cantidad });
+
     const SCOPES = ['https://www.googleapis.com/auth/spreadsheets'];
 
     const jwt = new JWT({
@@ -225,7 +227,9 @@ export async function registrarTickets(nombre: string, email: string, tipoTicket
 
     // Obtener el número total de filas actual
     const rows = await sheet.getRows();
-    const startingRowNumber = rows.length + 2; // +2 porque la primera fila es header y los índices empiezan en 1
+    const startingRowNumber = rows.length + 2;
+    
+    console.log(`Número inicial de filas: ${rows.length}, comenzando en fila ${startingRowNumber}`);
 
     // Crear array de nuevas filas
     const newRows = [];
@@ -233,15 +237,23 @@ export async function registrarTickets(nombre: string, email: string, tipoTicket
       const rowNumber = startingRowNumber + i;
       const uniqueId = await generateUniqueId(sheet);
       
+      const qrFormula = generateQRFormula(rowNumber);
+      console.log(`Preparando fila ${rowNumber}:`, {
+        uniqueId,
+        qrFormula
+      });
+
       newRows.push({
         'Fecha': new Date().toLocaleDateString(),
         'ID': uniqueId,
         'Nombre': nombre,
         'Email': email,
         'Ticket': tipoTicket,
-        'QRimg': generateQRFormula(rowNumber)
+        'QRimg': qrFormula
       });
     }
+
+    console.log('Filas a agregar:', newRows);
 
     // Agregar todas las filas de una vez
     await sheet.addRows(newRows);
@@ -249,7 +261,10 @@ export async function registrarTickets(nombre: string, email: string, tipoTicket
     console.log(`✅ Registrados ${cantidad} tickets para ${email}`);
     return true;
   } catch (error) {
-    console.error('Error registrando tickets:', error);
+    console.error('Error registrando tickets:', {
+      error,
+      datos: { nombre, email, tipoTicket, cantidad }
+    });
     throw error;
   }
 } 
