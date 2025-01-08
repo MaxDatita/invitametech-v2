@@ -73,6 +73,9 @@ async function imageToBase64(url: string): Promise<string> {
   }
 }
 
+// Función auxiliar para esperar un tiempo determinado
+const wait = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+
 export async function sendTicketEmail(data: TicketEmailData) {
   try {
     // Obtener datos de Google Sheets
@@ -83,6 +86,9 @@ export async function sendTicketEmail(data: TicketEmailData) {
       console.log('No hay tickets pendientes de envío para este email');
       return null;
     }
+
+    console.log('Esperando 15 segundos para que Google Sheets genere los QR codes...');
+    await wait(15000); // Esperar 15 segundos
 
     // Convertir QRs a base64
     const ticketsWithBase64QR = await Promise.all(
