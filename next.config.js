@@ -23,6 +23,14 @@ const nextConfig = {
           {
             key: 'Access-Control-Allow-Headers',
             value: 'X-Requested-With, Content-Type, Authorization'
+          },
+          {
+            key: 'Permissions-Policy',
+            value: 'camera=self'
+          },
+          {
+            key: 'Feature-Policy',
+            value: 'camera self'
           }
         ]
       }
