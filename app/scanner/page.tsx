@@ -4,7 +4,7 @@ import QRScanner from '@/components/qr-scan'
 import { useState, useEffect } from 'react'
 
 export default function ScannerPage() {
-  const [setHasPermission] = useState(false);
+  const [hasPermission, setHasPermission] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -25,7 +25,7 @@ export default function ScannerPage() {
     requestCameraPermission();
   }, []);
 
-  if (error) {
+  if (!hasPermission && error) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-100">
         <div className="bg-white p-8 rounded-lg shadow-md max-w-md w-full">
