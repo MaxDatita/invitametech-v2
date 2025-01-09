@@ -21,22 +21,47 @@ const QRScanner = () => {
   const [hasPermission, setHasPermission] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const scannerRef = useRef<Html5QrcodeScanner | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   const requestCameraPermission = async () => {
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({ 
-        video: { 
-          facingMode: 'environment',
+      const constraints = {
+        video: {
+          facingMode: { exact: "environment" },
           width: { ideal: 1280 },
           height: { ideal: 720 }
-        } 
-      });
+        }
+      };
+
+      const permissions = await navigator.permissions.query({ name: 'camera' as PermissionName });
+      
+      if (permissions.state === 'denied') {
+        throw new Error('Permiso de cámara denegado. Por favor, habilita el acceso a la cámara en la configuración de tu navegador.');
+      }
+
+      const stream = await navigator.mediaDevices.getUserMedia(constraints);
+      
       stream.getTracks().forEach(track => track.stop());
+      
       setHasPermission(true);
       setIsScanning(true);
+      
+      console.log('✅ Permiso de cámara concedido');
     } catch (error) {
-      console.error('Error accessing camera:', error);
+      console.error('Error al acceder a la cámara:', error);
       setHasPermission(false);
+      
+      if (error instanceof Error) {
+        if (error.name === 'NotAllowedError' || error.name === 'PermissionDeniedError') {
+          setError('Acceso a la cámara denegado. Por favor, permite el acceso cuando el navegador lo solicite.');
+        } else if (error.name === 'NotFoundError') {
+          setError('No se encontró ninguna cámara. Asegúrate de que tu dispositivo tiene una cámara disponible.');
+        } else {
+          setError(`Error al acceder a la cámara: ${error.message}`);
+        }
+      } else {
+        setError('Error desconocido al acceder a la cámara');
+      }
     }
   };
 
@@ -212,12 +237,16 @@ const QRScanner = () => {
             </div>
           ) : !hasPermission ? (
             <div className="text-center p-4">
-              <p className="body-base-alt mb-4">Para escanear códigos QR, necesitamos acceso a tu cámara</p>
+              <p className="body-base-alt mb-4">
+                Para escanear códigos QR, necesitamos acceso a tu cámara.
+                {error && <span className="text-red-500 block mt-2">{error}</span>}
+              </p>
               <Button
                 onClick={requestCameraPermission}
                 variant="primary"
+                disabled={isLoading}
               >
-                Permitir acceso
+                {isLoading ? 'Solicitando acceso...' : 'Permitir acceso'}
               </Button>
             </div>
           ) : isScanning ? (

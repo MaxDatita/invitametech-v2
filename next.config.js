@@ -24,19 +24,6 @@ const nextConfig = {
             value: 'X-Requested-With, Content-Type, Authorization'
           }
         ]
-      },
-      {
-        source: '/scanner',
-        headers: [
-          {
-            key: 'Permissions-Policy',
-            value: 'camera=(self "https://*.eventechy.com")'
-          },
-          {
-            key: 'Cross-Origin-Opener-Policy',
-            value: 'same-origin-allow-popups'
-          }
-        ]
       }
     ]
   },
