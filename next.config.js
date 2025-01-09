@@ -49,6 +49,36 @@ const nextConfig = {
     }
     return config;
   },
+  headers: async () => {
+    return [
+      {
+        source: '/scanner',
+        headers: [
+          {
+            key: 'Permissions-Policy',
+            value: 'camera=self'
+          },
+          {
+            key: 'Feature-Policy',
+            value: 'camera self'
+          }
+        ],
+      },
+      {
+        source: '/auth-project',
+        headers: [
+          {
+            key: 'Permissions-Policy',
+            value: 'camera=self'
+          },
+          {
+            key: 'Feature-Policy',
+            value: 'camera self'
+          }
+        ],
+      }
+    ]
+  },
 };
 
 module.exports = nextConfig; 

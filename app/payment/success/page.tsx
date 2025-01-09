@@ -42,10 +42,6 @@ async function handleSuccessfulPayment(paymentData: PaymentData) {
       throw new Error('Error registrando tickets');
     }
 
-    // Esperar 15 segundos antes de enviar el email
-    console.log('Esperando 15 segundos antes de enviar el email...');
-    await new Promise(resolve => setTimeout(resolve, 15000));
-
     // Enviar email con los tickets
     await sendTicketEmail({
       nombre,
