@@ -156,7 +156,8 @@ const QRScanner = () => {
     };
 
     // Creamos el scanner
-    scannerRef.current = new Html5QrcodeScanner("reader", config, /* verbose= */ false);
+    const scanner = new Html5QrcodeScanner("reader", config, /* verbose= */ false);
+    scannerRef.current = scanner;
 
     const validateQRCode = async (qrCode: string) => {
       setIsLoading(true);
@@ -178,10 +179,7 @@ const QRScanner = () => {
     };
 
     const onScanSuccess = (decodedText: string) => {
-      if (scannerRef.current) {
-        scannerRef.current.pause(true); // Pausa manteniendo la cámara activa
-        validateQRCode(decodedText);
-      }
+      validateQRCode(decodedText);
     };
 
     const onScanError = (errorMessage: string) => {
@@ -191,21 +189,12 @@ const QRScanner = () => {
       }
     };
 
-    // Iniciamos el scanner con un pequeño delay para asegurar que el DOM está listo
-    setTimeout(() => {
-      if (scannerRef.current) {
-        scannerRef.current.render(onScanSuccess, onScanError);
-        
-        // Forzamos el inicio del escaneo
-        scannerRef.current.resume();
-      }
-    }, 1000);
+    // Iniciamos el scanner inmediatamente
+    scanner.render(onScanSuccess, onScanError);
 
     return () => {
       if (scannerRef.current) {
-        // Limpieza simplificada
         try {
-          scannerRef.current.pause();
           scannerRef.current.clear();
         } catch (error) {
           console.error('Error al limpiar el scanner:', error);
