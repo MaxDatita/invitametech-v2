@@ -5,7 +5,6 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import { Card } from "@/components/ui/card"
 import { CheckCircle } from 'lucide-react'
 import { sendTicketEmail } from '@/services/email'
-import { registrarTickets } from '@/lib/google-sheets-registros'
 
 interface PaymentData {
   nombre: string;
@@ -43,6 +42,10 @@ async function handleSuccessfulPayment(paymentData: PaymentData) {
       throw new Error('Error registrando tickets');
     }
 
+    // Esperar 15 segundos antes de enviar el email
+    console.log('Esperando 15 segundos antes de enviar el email...');
+    await new Promise(resolve => setTimeout(resolve, 15000));
+
     // Enviar email con los tickets
     await sendTicketEmail({
       nombre,
@@ -62,43 +65,23 @@ function SuccessContent() {
   const searchParams = useSearchParams()
   
   useEffect(() => {
-    const saveInvitadoAndSendEmail = async () => {
+    const processPayment = async () => {
       try {
         const quantity = parseInt(searchParams.get('quantity') || '1');
         const nombre = searchParams.get('name') || '';
         const email = searchParams.get('email') || '';
         const tipoTicket = searchParams.get('ticketType') || '';
 
-        // Primero guardamos el invitado
-        const response = await fetch('/api/payment/success', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            nombre,
-            email,
-            tipoTicket,
-            quantity,
-          }),
-        });
-
-        if (!response.ok) throw new Error('Error guardando la información del ticket');
-
-        // Iniciamos la redirección
-        router.push('/');
-
-        // El proceso de email continúa en segundo plano después de la redirección
-        // Esperamos un tiempo prudente para que Google Sheets se actualice
-        await new Promise(resolve => setTimeout(resolve, 3000));
-
-        // Enviamos el email con todos los tickets no enviados para este email
+        // Registrar tickets y enviar email
         await handleSuccessfulPayment({
           nombre,
           email,
           tipoTicket,
           cantidad: quantity
         });
+
+        // Iniciamos la redirección
+        router.push('/');
 
       } catch (error) {
         console.error('Error:', error);
@@ -107,7 +90,7 @@ function SuccessContent() {
     };
 
     if (searchParams.get('status') === 'approved') {
-      saveInvitadoAndSendEmail();
+      processPayment();
     }
   }, [router, searchParams]);
 

@@ -231,6 +231,16 @@ export async function registrarTickets(nombre: string, email: string, tipoTicket
     
     console.log(`Número inicial de filas: ${rows.length}, comenzando en fila ${startingRowNumber}`);
 
+    // Formatear la fecha actual
+    const now = new Date();
+    const fechaFormateada = now.toLocaleString('es-ES', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    }).replace(',', '');
+
     // Crear array de nuevas filas
     const newRows = [];
     for (let i = 0; i < cantidad; i++) {
@@ -240,14 +250,15 @@ export async function registrarTickets(nombre: string, email: string, tipoTicket
       const qrFormula = generateQRFormula(rowNumber);
       console.log(`Preparando fila ${rowNumber}:`, {
         uniqueId,
-        qrFormula
+        qrFormula,
+        nombre
       });
 
       newRows.push({
-        'Fecha': new Date().toLocaleDateString(),
+        'Fecha': fechaFormateada,
         'ID': uniqueId,
-        'Nombre': nombre,
-        'Email': email,
+        'Nombre': nombre.trim(),  // Solo elimina espacios al inicio y final, mantiene espacios entre palabras
+        'Email': email.toLowerCase().trim(),
         'Ticket': tipoTicket,
         'QRimg': qrFormula
       });
