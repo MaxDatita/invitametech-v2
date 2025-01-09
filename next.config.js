@@ -26,11 +26,15 @@ const nextConfig = {
         ]
       },
       {
-        source: '/(scanner|auth-project)',
+        source: '/scanner',
         headers: [
           {
             key: 'Permissions-Policy',
-            value: 'camera=self'
+            value: 'camera=(self "https://*.eventechy.com")'
+          },
+          {
+            key: 'Cross-Origin-Opener-Policy',
+            value: 'same-origin-allow-popups'
           }
         ]
       }
