@@ -9,12 +9,11 @@ const nextConfig = {
   async headers() {
     return [
       {
-        // Aplicar estos headers a todas las rutas
         source: '/:path*',
         headers: [
           {
             key: 'Access-Control-Allow-Origin',
-            value: '*'
+            value: 'invitacion-v2.eventechy.com, invitametech-v2.vercel.app'
           },
           {
             key: 'Access-Control-Allow-Methods',
@@ -26,11 +25,11 @@ const nextConfig = {
           },
           {
             key: 'Permissions-Policy',
-            value: 'camera=self'
+            value: 'camera=(self "https://invitacion-v2.eventechy.com" "https://invitametech-v2.vercel.app")'
           },
           {
             key: 'Feature-Policy',
-            value: 'camera self'
+            value: 'camera self https://invitacion-v2.eventechy.com https://invitametech-v2.vercel.app'
           }
         ]
       }
@@ -38,7 +37,7 @@ const nextConfig = {
   },
   images: {
     unoptimized: true,
-    domains: ['eventechy.com', 'invitacion-v2.eventechy.com'],
+    domains: ['eventechy.com', 'invitacion-v2.eventechy.com', 'invitametech-v2.vercel.app'],
   },
   webpack: (config, { isServer }) => {
     config.resolve.fallback = {
