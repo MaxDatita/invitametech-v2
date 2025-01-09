@@ -13,7 +13,7 @@ const nextConfig = {
         headers: [
           {
             key: 'Access-Control-Allow-Origin',
-            value: 'invitacion-v2.eventechy.com, invitametech-v2.vercel.app'
+            value: '*'
           },
           {
             key: 'Access-Control-Allow-Methods',
@@ -22,14 +22,15 @@ const nextConfig = {
           {
             key: 'Access-Control-Allow-Headers',
             value: 'X-Requested-With, Content-Type, Authorization'
-          },
+          }
+        ]
+      },
+      {
+        source: '/(scanner|auth-project)',
+        headers: [
           {
             key: 'Permissions-Policy',
-            value: 'camera=(self "https://invitacion-v2.eventechy.com" "https://invitametech-v2.vercel.app")'
-          },
-          {
-            key: 'Feature-Policy',
-            value: 'camera self https://invitacion-v2.eventechy.com https://invitametech-v2.vercel.app'
+            value: 'camera=self'
           }
         ]
       }
@@ -55,37 +56,7 @@ const nextConfig = {
       })
     }
     return config;
-  },
-  headers: async () => {
-    return [
-      {
-        source: '/scanner',
-        headers: [
-          {
-            key: 'Permissions-Policy',
-            value: 'camera=self'
-          },
-          {
-            key: 'Feature-Policy',
-            value: 'camera self'
-          }
-        ],
-      },
-      {
-        source: '/auth-project',
-        headers: [
-          {
-            key: 'Permissions-Policy',
-            value: 'camera=self'
-          },
-          {
-            key: 'Feature-Policy',
-            value: 'camera self'
-          }
-        ],
-      }
-    ]
-  },
+  }
 };
 
 module.exports = nextConfig; 
