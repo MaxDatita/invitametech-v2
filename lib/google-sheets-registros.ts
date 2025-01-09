@@ -13,7 +13,6 @@ interface MessagesResponse {
   total: number;
 }
 
-
 export async function getMessages(
   page: number = 1, 
   pageSize: number = 20, 
@@ -67,15 +66,36 @@ export async function getMessages(
     };
   }
 
-
-// Registro de invitados con fecha, nombre, email y tipo de ticket
-export async function addInvitado(data: {
-  nombre: string;
-  email: string;
-  tipoTicket: string;
-  quantity?: number;
-}) {
+// Función para generar ID único de 5 dígitos
+async function generateUniqueId(sheet: GoogleSpreadsheetWorksheet): Promise<string> {
   try {
+    // Obtener todos los IDs existentes
+    const rows = await sheet.getRows();
+    const existingIds = rows.map(row => row.get('ID')).filter(Boolean);
+    
+    // Generar nuevo ID hasta que sea único
+    let newId;
+    do {
+      // Generar número aleatorio de 5 dígitos (10000 a 99999)
+      newId = Math.floor(10000 + Math.random() * 90000).toString();
+    } while (existingIds.includes(newId));
+    
+    return newId;
+  } catch (error) {
+    console.error('Error generando ID único:', error);
+    throw error;
+  }
+}
+
+// Función para generar fórmula de QR para una fila específica
+function generateQRFormula(rowNumber: number): string {
+  return `=HYPERLINK("https://quickchart.io/qr?text=ID:" & ENCODEURL(B${rowNumber}:B${rowNumber}) & ",Nombre:" & ENCODEURL(C${rowNumber}:C${rowNumber}) & "&size=150")`;
+}
+
+export async function registrarTickets(nombre: string, email: string, tipoTicket: string, cantidad: number) {
+  try {
+    console.log('Iniciando registro de tickets:', { nombre, email, tipoTicket, cantidad });
+
     const jwt = new JWT({
       email: process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
       key: process.env.GOOGLE_PRIVATE_KEY?.split(String.raw`\n`).join('\n'),
@@ -84,49 +104,60 @@ export async function addInvitado(data: {
 
     const doc = new GoogleSpreadsheet(process.env.GOOGLE_SHEET_ID!, jwt);
     await doc.loadInfo();
-    
+
     const sheet = doc.sheetsByTitle['Invitados'];
     if (!sheet) {
       throw new Error('No se encontró la hoja "Invitados"');
     }
 
-    const quantity = parseInt(String(data.quantity) || '1', 10);
+    // Obtener el número total de filas actual
+    const rows = await sheet.getRows();
+    const startingRowNumber = rows.length + 2;
 
-    for (let i = 0; i < quantity; i++) {
-      const now = new Date();
-      const argentinaTime = new Intl.DateTimeFormat('es-AR', {
-        timeZone: 'America/Argentina/Buenos_Aires',
-        year: 'numeric',
-        month: '2-digit',
-        day: '2-digit',
-        hour: '2-digit',
-        minute: '2-digit',
-        hour12: false,
-      }).format(now);
+    // Formatear la fecha actual en zona horaria Argentina
+    const now = new Date();
+    const fechaFormateada = new Intl.DateTimeFormat('es-AR', {
+      timeZone: 'America/Argentina/Buenos_Aires',
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false,
+    }).format(now);
 
-      const rowData = {
-        'Fecha': argentinaTime,
-        'Invitado': data.nombre,
-        'Email': data.email,
-        'Ticket': data.tipoTicket.split('(')[0].trim(),
-      };
+    // Crear array de nuevas filas
+    const newRows = [];
+    for (let i = 0; i < cantidad; i++) {
+      const rowNumber = startingRowNumber + i;
+      const uniqueId = await generateUniqueId(sheet);
+      const qrFormula = generateQRFormula(rowNumber);
 
-      try {
-        await sheet.addRow(rowData);
-      } catch (rowError) {
-        console.error('Error adding row:', rowError);
-        throw rowError;
-      }
+      newRows.push({
+        'Fecha': fechaFormateada,
+        'ID': uniqueId,
+        'Invitado': nombre.trim(),
+        'Email': email.toLowerCase().trim(),
+        'Ticket': tipoTicket.split('(')[0].trim(), // Eliminar el precio entre paréntesis si existe
+        'QRimg': qrFormula
+      });
     }
 
+    // Agregar todas las filas de una vez
+    await sheet.addRows(newRows);
+    
+    console.log(`✅ Registrados ${cantidad} tickets para ${email}`);
     return true;
   } catch (error) {
-    console.error('Error in addInvitado:', error);
+    console.error('Error registrando tickets:', {
+      error,
+      datos: { nombre, email, tipoTicket, cantidad }
+    });
     throw error;
   }
 } 
 
-// Guardar y obtener el token del vendedor
+// Funciones para manejar el token del vendedor
 export async function saveSellerToken(token: string): Promise<void> {
   try {
     const jwt = new JWT({
@@ -179,103 +210,3 @@ export async function getSellerToken(): Promise<string | null> {
   }
 } 
 
-// Función para generar ID único de 5 dígitos
-async function generateUniqueId(sheet: GoogleSpreadsheetWorksheet): Promise<string> {
-  try {
-    // Obtener todos los IDs existentes
-    const rows = await sheet.getRows();
-    const existingIds = rows.map(row => row.get('ID')).filter(Boolean);
-    
-    // Generar nuevo ID hasta que sea único
-    let newId;
-    do {
-      // Generar número aleatorio de 5 dígitos (10000 a 99999)
-      newId = Math.floor(10000 + Math.random() * 90000).toString();
-    } while (existingIds.includes(newId));
-    
-    return newId;
-  } catch (error) {
-    console.error('Error generando ID único:', error);
-    throw error;
-  }
-}
-
-// Función para generar fórmula de QR para una fila específica
-function generateQRFormula(rowNumber: number): string {
-  return `=HYPERLINK("https://quickchart.io/qr?text=ID:" & ENCODEURL(B${rowNumber}:B${rowNumber}) & ",Nombre:" & ENCODEURL(C${rowNumber}:C${rowNumber}) & "&size=150")`;
-}
-
-export async function registrarTickets(nombre: string, email: string, tipoTicket: string, cantidad: number) {
-  try {
-    console.log('Iniciando registro de tickets:', { nombre, email, tipoTicket, cantidad });
-
-    const SCOPES = ['https://www.googleapis.com/auth/spreadsheets'];
-
-    const jwt = new JWT({
-      email: process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
-      key: process.env.GOOGLE_PRIVATE_KEY?.split(String.raw`\n`).join('\n'),
-      scopes: SCOPES,
-    });
-
-    const doc = new GoogleSpreadsheet(process.env.GOOGLE_SHEET_ID!, jwt);
-    await doc.loadInfo();
-
-    const sheet = doc.sheetsByTitle['Invitados'];
-    if (!sheet) {
-      throw new Error('No se encontró la hoja "Invitados"');
-    }
-
-    // Obtener el número total de filas actual
-    const rows = await sheet.getRows();
-    const startingRowNumber = rows.length + 2;
-    
-    console.log(`Número inicial de filas: ${rows.length}, comenzando en fila ${startingRowNumber}`);
-
-    // Formatear la fecha actual
-    const now = new Date();
-    const fechaFormateada = now.toLocaleString('es-ES', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    }).replace(',', '');
-
-    // Crear array de nuevas filas
-    const newRows = [];
-    for (let i = 0; i < cantidad; i++) {
-      const rowNumber = startingRowNumber + i;
-      const uniqueId = await generateUniqueId(sheet);
-      
-      const qrFormula = generateQRFormula(rowNumber);
-      console.log(`Preparando fila ${rowNumber}:`, {
-        uniqueId,
-        qrFormula,
-        nombre
-      });
-
-      newRows.push({
-        'Fecha': fechaFormateada,
-        'ID': uniqueId,
-        'Nombre': nombre.trim(),  // Solo elimina espacios al inicio y final, mantiene espacios entre palabras
-        'Email': email.toLowerCase().trim(),
-        'Ticket': tipoTicket,
-        'QRimg': qrFormula
-      });
-    }
-
-    console.log('Filas a agregar:', newRows);
-
-    // Agregar todas las filas de una vez
-    await sheet.addRows(newRows);
-    
-    console.log(`✅ Registrados ${cantidad} tickets para ${email}`);
-    return true;
-  } catch (error) {
-    console.error('Error registrando tickets:', {
-      error,
-      datos: { nombre, email, tipoTicket, cantidad }
-    });
-    throw error;
-  }
-} 
