@@ -65,7 +65,7 @@ export async function getUnsentTickets(email: string): Promise<TicketData[]> {
       const rowEmail = row.get('Email')?.trim();  // Columna D (texto)
       const enviado = row.get('Email Enviado');   // Columna I (checkbox)
       const id = row.get('ID');                   // Columna B (número)
-      const qrCode = row.get('QR model');         // Columna Y (texto con URL)
+      const qrCode = row.get('QRimg');         // Columna F (texto con URL)
 
       // Validaciones específicas
       const isValidId = !isNaN(Number(id));

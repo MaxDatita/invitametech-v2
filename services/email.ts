@@ -148,7 +148,7 @@ export async function sendTicketEmail(data: TicketEmailData) {
         
         ${ticketsHtml}
         
-        <div style="color: #666; font-size: 12px; margin-top: 30px;">
+        <div style="color: #666; font-size: 12px; margin-top: 30px; text-align: center;">
           <p>Eventechy es solo el intermediario entre el evento y los asistentes al mismo. No respondas este email ya que es solo transaccional, si requieres más información o tienes inconvenientes con tus tickets, contacta al organizador del evento mediante el botón debajo.</p>
         </div>
         
