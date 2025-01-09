@@ -26,12 +26,22 @@ async function handleSuccessfulPayment(paymentData: PaymentData) {
     });
 
     // Registrar los tickets en Google Sheets
-    await registrarTickets(
-      nombre,
-      email,
-      tipoTicket,
-      Number(cantidad)  // Asegurarnos que cantidad es un número
-    );
+    const registroResponse = await fetch('/api/google-sheets/register', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        nombre,
+        email,
+        tipoTicket,
+        cantidad: Number(cantidad)
+      })
+    });
+
+    if (!registroResponse.ok) {
+      throw new Error('Error registrando tickets');
+    }
 
     // Enviar email con los tickets
     await sendTicketEmail({
