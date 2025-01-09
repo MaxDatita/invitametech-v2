@@ -203,11 +203,10 @@ const QRScanner = () => {
 
     return () => {
       if (scannerRef.current) {
-        // Aseguramos una limpieza adecuada
+        // Limpieza simplificada
         try {
-          scannerRef.current.pause(true)
-            .then(() => scannerRef.current?.clear())
-            .catch(console.error);
+          scannerRef.current.pause();
+          scannerRef.current.clear();
         } catch (error) {
           console.error('Error al limpiar el scanner:', error);
         }
@@ -217,14 +216,20 @@ const QRScanner = () => {
 
   const handleReset = () => {
     if (scannerRef.current) {
-      scannerRef.current.pause(true)
-        .then(() => {
-          scannerRef.current?.clear();
-          scannerRef.current = null;
-          setScanResult(null);
-          setIsScanning(true);
-        })
-        .catch(console.error);
+      try {
+        // Pausar y limpiar el scanner
+        scannerRef.current.pause();
+        scannerRef.current.clear();
+        scannerRef.current = null;
+        setScanResult(null);
+        setIsScanning(true);
+      } catch (error) {
+        console.error('Error al resetear el scanner:', error);
+        // Intentar limpiar el estado aunque falle el scanner
+        scannerRef.current = null;
+        setScanResult(null);
+        setIsScanning(true);
+      }
     } else {
       setScanResult(null);
       setIsScanning(true);
