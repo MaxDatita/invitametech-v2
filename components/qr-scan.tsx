@@ -28,25 +28,24 @@ const QRScanner = () => {
       // Primero intentamos con la cámara trasera
       const constraints = {
         video: {
-          facingMode: "environment", // Quitamos 'exact' para hacerlo más flexible
+          facingMode: "environment",
           width: { ideal: 1280 },
           height: { ideal: 720 }
         }
       };
 
       try {
+        // Solo verificamos que podemos acceder a la cámara
         const stream = await navigator.mediaDevices.getUserMedia(constraints);
-        stream.getTracks().forEach(track => track.stop());
+        // No detenemos el stream aquí, lo dejamos activo
         setHasPermission(true);
         setIsScanning(true);
         console.log('✅ Permiso de cámara concedido');
       } catch (firstError) {
-        // Si falla, intentamos con cualquier cámara disponible
         console.log('Intentando con cámara alternativa...');
         const fallbackStream = await navigator.mediaDevices.getUserMedia({ 
           video: true 
         });
-        fallbackStream.getTracks().forEach(track => track.stop());
         setHasPermission(true);
         setIsScanning(true);
         console.log('✅ Permiso de cámara concedido (fallback)');
@@ -60,18 +59,6 @@ const QRScanner = () => {
           setError('Acceso a la cámara denegado. Por favor, permite el acceso cuando el navegador lo solicite.');
         } else if (error.name === 'NotFoundError') {
           setError('No se encontró ninguna cámara. Asegúrate de que tu dispositivo tiene una cámara disponible.');
-        } else if (error.name === 'OverconstrainedError') {
-          setError('No se pudo acceder a la cámara con la configuración solicitada. Intentando con configuración alternativa...');
-          // Intentar nuevamente con configuración básica
-          try {
-            const basicStream = await navigator.mediaDevices.getUserMedia({ video: true });
-            basicStream.getTracks().forEach(track => track.stop());
-            setHasPermission(true);
-            setIsScanning(true);
-            setError(null);
-          } catch (fallbackError) {
-            setError('No se pudo acceder a ninguna cámara disponible.');
-          }
         } else {
           setError(`Error al acceder a la cámara: ${error.message}`);
         }
@@ -168,10 +155,7 @@ const QRScanner = () => {
       },
       verbose: false,
       rememberLastUsedCamera: true,
-      supportedScanTypes: [Html5QrcodeScanType.SCAN_TYPE_CAMERA],
-      defaultVideoConstraints: {
-        facingMode: "environment"
-      }
+      supportedScanTypes: [Html5QrcodeScanType.SCAN_TYPE_CAMERA]
     };
 
     scannerRef.current = new Html5QrcodeScanner("reader", config, false);
@@ -213,7 +197,7 @@ const QRScanner = () => {
         document.head.removeChild(existingStyle);
       }
       if (scannerRef.current) {
-        scannerRef.current.clear();
+        scannerRef.current.clear().catch(console.error);
       }
     };
   }, [hasPermission, isScanning]);
