@@ -148,17 +148,15 @@ const QRScanner = () => {
       aspectRatio: 1.0,
       showTorchButtonIfSupported: true,
       showZoomSliderIfSupported: false,
-      defaultZoomValueIfSupported: 2,
       formatsToSupport: [Html5QrcodeSupportedFormats.QR_CODE],
       experimentalFeatures: {
         useBarCodeDetectorIfSupported: false
       },
-      verbose: false,
-      rememberLastUsedCamera: true,
-      supportedScanTypes: [Html5QrcodeScanType.SCAN_TYPE_CAMERA]
+      verbose: false
     };
 
-    scannerRef.current = new Html5QrcodeScanner("reader", config, false);
+    // Creamos el scanner
+    scannerRef.current = new Html5QrcodeScanner("reader", config, /* verbose= */ false);
 
     const validateQRCode = async (qrCode: string) => {
       setIsLoading(true);
@@ -181,34 +179,56 @@ const QRScanner = () => {
 
     const onScanSuccess = (decodedText: string) => {
       if (scannerRef.current) {
-        scannerRef.current.pause();
+        scannerRef.current.pause(true); // Pausa manteniendo la cámara activa
         validateQRCode(decodedText);
       }
     };
 
     const onScanError = (errorMessage: string) => {
-      console.warn(errorMessage);
+      // Solo logueamos errores críticos
+      if (!errorMessage.includes('NotFound')) {
+        console.warn(errorMessage);
+      }
     };
 
-    scannerRef.current.render(onScanSuccess, onScanError);
+    // Iniciamos el scanner con un pequeño delay para asegurar que el DOM está listo
+    setTimeout(() => {
+      if (scannerRef.current) {
+        scannerRef.current.render(onScanSuccess, onScanError);
+        
+        // Forzamos el inicio del escaneo
+        scannerRef.current.resume();
+      }
+    }, 1000);
 
     return () => {
-      if (existingStyle && document.head.contains(existingStyle)) {
-        document.head.removeChild(existingStyle);
-      }
       if (scannerRef.current) {
-        scannerRef.current.clear().catch(console.error);
+        // Aseguramos una limpieza adecuada
+        try {
+          scannerRef.current.pause(true)
+            .then(() => scannerRef.current?.clear())
+            .catch(console.error);
+        } catch (error) {
+          console.error('Error al limpiar el scanner:', error);
+        }
       }
     };
   }, [hasPermission, isScanning]);
 
   const handleReset = () => {
     if (scannerRef.current) {
-      scannerRef.current.clear();
-      scannerRef.current = null;
+      scannerRef.current.pause(true)
+        .then(() => {
+          scannerRef.current?.clear();
+          scannerRef.current = null;
+          setScanResult(null);
+          setIsScanning(true);
+        })
+        .catch(console.error);
+    } else {
+      setScanResult(null);
+      setIsScanning(true);
     }
-    setScanResult(null);
-    setIsScanning(true);
   };
 
   return (
