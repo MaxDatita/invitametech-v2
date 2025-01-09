@@ -72,15 +72,18 @@ function SuccessContent() {
         const email = searchParams.get('email') || '';
         const tipoTicket = searchParams.get('ticketType') || '';
 
-        // Registrar tickets y enviar email
-        await handleSuccessfulPayment({
+        // Registrar tickets y enviar email (proceso en segundo plano)
+        handleSuccessfulPayment({
           nombre,
           email,
           tipoTicket,
           cantidad: quantity
+        }).catch(error => {
+          console.error('Error en proceso de pago:', error);
         });
 
-        // Iniciamos la redirección
+        // Esperar 5 segundos antes de redirigir
+        await new Promise(resolve => setTimeout(resolve, 5000));
         router.push('/');
 
       } catch (error) {
@@ -102,7 +105,7 @@ function SuccessContent() {
           <h1 className="auth-card-title">Pago Exitoso</h1>
           
           <p className="auth-card-text">
-            Tu pago ha sido procesado correctamente. En breve recibirás un email con tus tickets.
+            Tu pago ha sido procesado correctamente. En breve recibirás un email con tus tickets (por si acaso revisa tu casilla de spam).
           </p>
           
           <p className="auth-card-text text-sm text-gray-600">
