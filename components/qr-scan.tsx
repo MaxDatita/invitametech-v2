@@ -4,7 +4,6 @@ import { Html5Qrcode } from 'html5-qrcode';
 import { useEffect, useState, useRef } from 'react';
 import { Button } from "@/components/ui/button"
 
-
 interface ScanResult {
   success: boolean;
   message: string;
@@ -36,22 +35,18 @@ const QRScanner = () => {
 
       try {
         // Solo verificamos que podemos acceder a la cámara
-        const stream = await navigator.mediaDevices.getUserMedia(constraints);
+        await navigator.mediaDevices.getUserMedia(constraints);
         // No detenemos el stream aquí, lo dejamos activo
         setHasPermission(true);
         setIsScanning(true);
-        console.log('✅ Permiso de cámara concedido');
-      } catch (firstError) {
-        console.log('Intentando con cámara alternativa...');
-        const fallbackStream = await navigator.mediaDevices.getUserMedia({ 
+      } catch {
+        await navigator.mediaDevices.getUserMedia({ 
           video: true 
         });
         setHasPermission(true);
         setIsScanning(true);
-        console.log('✅ Permiso de cámara concedido (fallback)');
       }
     } catch (error) {
-      console.error('Error al acceder a la cámara:', error);
       setHasPermission(false);
       
       if (error instanceof Error) {
@@ -121,7 +116,7 @@ const QRScanner = () => {
       const data: ScanResult = await response.json();
       setScanResult(data);
       setIsScanning(false);
-    } catch (error) {
+    } catch {
       setScanResult({
         success: false,
         message: "Error al validar el código QR"
