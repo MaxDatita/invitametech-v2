@@ -8,9 +8,9 @@ interface ScanResult {
   success: boolean;
   message: string;
   details?: {
-    nombre?: string;
-    mesa?: string;
-    invitados?: number;
+    ID?: string;
+    Titular?: string;
+    Ticket?: number;
   }
 }
 
@@ -196,17 +196,16 @@ const QRScanner = () => {
                   <h3 className="heading-h2-alt mb-4 text-center">
                     {scanResult.success ? '✅ Invitación válida' : '❌ Invitación no válida'}
                   </h3>
-                  <p className="body-base-alt mb-4 text-center">{scanResult.message}</p>
                   {scanResult.details && (
                     <div className="space-y-2">
-                      {scanResult.details.nombre && (
-                        <p className="body-base-alt">Nombre: {scanResult.details.nombre}</p>
+                      {scanResult.details.ID && (
+                        <p className="body-base-alt"><strong>ID:</strong> {scanResult.details.ID}</p>
                       )}
-                      {scanResult.details.mesa && (
-                        <p className="body-base-alt">Mesa: {scanResult.details.mesa}</p>
+                      {scanResult.details.Titular && (
+                        <p className="body-base-alt"><strong>Titular:</strong> {scanResult.details.Titular}</p>
                       )}
-                      {scanResult.details.invitados && (
-                        <p className="body-base-alt">Invitados: {scanResult.details.invitados}</p>
+                      {scanResult.details.Ticket && (
+                        <p className="body-base-alt"><strong>Ticket:</strong> {scanResult.details.Ticket}</p>
                       )}
                     </div>
                   )}
