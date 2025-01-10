@@ -1,6 +1,6 @@
 'use client';
 
-import { Html5QrcodeScanner, Html5QrcodeSupportedFormats, Html5QrcodeScanType } from 'html5-qrcode';
+import { Html5Qrcode } from 'html5-qrcode';
 import { useEffect, useState, useRef } from 'react';
 import { Button } from "@/components/ui/button"
 
@@ -20,7 +20,7 @@ const QRScanner = () => {
   const [isScanning, setIsScanning] = useState(false);
   const [hasPermission, setHasPermission] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const scannerRef = useRef<Html5QrcodeScanner | null>(null);
+  const scannerRef = useRef<Html5Qrcode | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   const requestCameraPermission = async () => {
@@ -71,137 +71,65 @@ const QRScanner = () => {
   useEffect(() => {
     if (!hasPermission || !isScanning) return;
 
-    const styleId = "qr-scanner-styles";
-    let existingStyle = document.getElementById(styleId);
-
-    if (!existingStyle) {
-      const style = document.createElement("style");
-      style.id = styleId;
-      style.textContent = `
-        /* Reset y estilos base */
-        #reader__dashboard,
-        #reader__dashboard_section,
-        #reader__dashboard_section_csr,
-        #reader__status_text,
-        #reader__filescan_input,
-        #reader__dashboard_section_swaplink,
-        select {
-          display: none !important;
-        }
-
-        #reader {
-          border: none !important;
-          background: transparent !important;
-        }
-
-        #reader__scan_region {
-          background: transparent !important;
-          border: 2px solid rgba(147, 51, 234, 0.3) !important;
-          border-radius: 0.75rem !important;
-          overflow: hidden !important;
-        }
-
-        #reader__scan_region > img {
-          display: none !important;
-        }
-
-        /* Botón de flash */
-        #reader__torch_button {
-          position: fixed !important;
-          z-index: 9999 !important;
-          padding: 0.5rem 1rem !important;
-          border-radius: 0.5rem !important;
-          background: #bf90ee !important;
-          color: white !important;
-          font-size: 0.875rem !important;
-          font-weight: 500 !important;
-          position: absolute !important;
-          bottom: 1rem !important;
-          left: 50% !important;
-          transform: translateX(-50%) !important;
-          z-index: 1000 !important;
-          transition: all 0.2s ease !important;
-          border: none !important;
-          cursor: pointer !important;
-          box-shadow: 0 2px 4px rgba(0,0,0,0.1) !important;
-        }
-
-        #reader__torch_button:hover {
-          background: rgb(126 34 206) !important;
-          transform: translateX(-50%) translateY(-2px) !important;
-        }
-
-        #reader__torch_button:active {
-          transform: translateX(-50%) translateY(0) !important;
-        }
-      `;
-      document.head.appendChild(style);
-      existingStyle = style;
-    }
-
     const config = {
-      qrbox: {
-        width: 250,
-        height: 250,
-      },
       fps: 10,
+      qrbox: { width: 250, height: 250 },
       aspectRatio: 1.0,
-      showTorchButtonIfSupported: true,
-      showZoomSliderIfSupported: false,
-      formatsToSupport: [Html5QrcodeSupportedFormats.QR_CODE],
-      experimentalFeatures: {
-        useBarCodeDetectorIfSupported: false
-      },
-      verbose: false
     };
 
-    // Creamos el scanner
-    const scanner = new Html5QrcodeScanner("reader", config, /* verbose= */ false);
-    scannerRef.current = scanner;
+    try {
+      const html5QrCode = new Html5Qrcode("reader");
+      scannerRef.current = html5QrCode;
 
-    const validateQRCode = async (qrCode: string) => {
-      setIsLoading(true);
-      try {
-        const response = await fetch(
-          `https://script.google.com/macros/s/AKfycbwZMaaig2z4YUimzQweMhLIKSeco-ZcaSeKYVIu8qvZcCZfdIHJPGY-9b-i8K4JyggG/exec?code=${encodeURIComponent(qrCode)}`
-        );
-        const data: ScanResult = await response.json();
-        setScanResult(data);
-        setIsScanning(false);
-      } catch (error) {
-        setScanResult({
-          success: false,
-          message: "Error al validar el código QR"
-        });
-      } finally {
-        setIsLoading(false);
-      }
-    };
+      html5QrCode.start(
+        { facingMode: "environment" },
+        config,
+        async (decodedText) => {
+          // Éxito en el escaneo
+          html5QrCode.pause();
+          await validateQRCode(decodedText);
+        },
+        (errorMessage) => {
+          // Solo logueamos errores críticos
+          if (!errorMessage.includes('NotFound')) {
+            console.warn(errorMessage);
+          }
+        }
+      ).catch((err) => {
+        console.error("Error al iniciar el scanner:", err);
+        setError("No se pudo iniciar el scanner de QR");
+      });
 
-    const onScanSuccess = (decodedText: string) => {
-      validateQRCode(decodedText);
-    };
-
-    const onScanError = (errorMessage: string) => {
-      // Solo logueamos errores críticos
-      if (!errorMessage.includes('NotFound')) {
-        console.warn(errorMessage);
-      }
-    };
-
-    // Iniciamos el scanner inmediatamente
-    scanner.render(onScanSuccess, onScanError);
+    } catch (error) {
+      console.error("Error al crear el scanner:", error);
+      setError("Error al inicializar el scanner");
+    }
 
     return () => {
       if (scannerRef.current) {
-        try {
-          scannerRef.current.clear();
-        } catch (error) {
-          console.error('Error al limpiar el scanner:', error);
-        }
+        scannerRef.current.stop().catch(console.error);
       }
     };
   }, [hasPermission, isScanning]);
+
+  const validateQRCode = async (qrCode: string) => {
+    setIsLoading(true);
+    try {
+      const response = await fetch(
+        `https://script.google.com/macros/s/AKfycbwZMaaig2z4YUimzQweMhLIKSeco-ZcaSeKYVIu8qvZcCZfdIHJPGY-9b-i8K4JyggG/exec?code=${encodeURIComponent(qrCode)}`
+      );
+      const data: ScanResult = await response.json();
+      setScanResult(data);
+      setIsScanning(false);
+    } catch (error) {
+      setScanResult({
+        success: false,
+        message: "Error al validar el código QR"
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const handleReset = () => {
     if (scannerRef.current) {
@@ -256,7 +184,11 @@ const QRScanner = () => {
               <p className="body-base-alt text-center mb-4">
                 Escanea el código QR de la invitación
               </p>
-              <div id="reader" className="mx-auto max-w-xl min-h-[300px] rounded-lg overflow-hidden" />
+              <div 
+                id="reader" 
+                className="mx-auto max-w-xl min-h-[300px] rounded-lg overflow-hidden"
+                style={{ width: '100%' }}
+              />
             </>
           ) : (
             <>
