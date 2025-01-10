@@ -8,9 +8,9 @@ interface ScanResult {
   success: boolean;
   message: string;
   details?: {
-    ID?: string;
+    Ticket?: string;
     Titular?: string;
-    Ticket?: number;
+    ID?: number;
   }
 }
 
@@ -194,7 +194,7 @@ const QRScanner = () => {
                     : 'bg-red-50 text-red-800 border border-red-200 text-center'
                 }`}>
                   <h3 className="heading-h2-alt mb-4 text-center">
-                    {scanResult.success ? '✅ Invitación válida' : '❌ Invitación no válida'}
+                    {scanResult.success ? '✅ Invitación válida' : '⛔️ Invitación no válida'}
                   </h3>
                   {scanResult.details && (
                     <div className="space-y-2">
