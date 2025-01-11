@@ -196,16 +196,19 @@ const QRScanner = () => {
                   <h3 className="heading-h2-alt mb-4 text-center">
                     {scanResult.success ? '✅ Invitación válida' : '⛔️ Invitación no válida'}
                   </h3>
+                  <p className="body-base-alt text-center mb-4">
+                    {scanResult.message}
+                  </p>
                   {scanResult.details && (
                     <div className="space-y-2">
                       {scanResult.details.ID && (
-                        <p className="body-base-alt"><strong>ID:</strong> {scanResult.details.ID}</p>
+                        <p className="body-base-alt text-center"><strong>ID:</strong> {scanResult.details.ID}</p>
                       )}
                       {scanResult.details.Titular && (
-                        <p className="body-base-alt"><strong>Titular:</strong> {scanResult.details.Titular}</p>
+                        <p className="body-base-alt text-center"><strong>Titular:</strong> {scanResult.details.Titular}</p>
                       )}
                       {scanResult.details.Ticket && (
-                        <p className="body-base-alt"><strong>Ticket:</strong> {scanResult.details.Ticket}</p>
+                        <p className="body-base-alt text-center"><strong>Ticket:</strong> {scanResult.details.Ticket}</p>
                       )}
                     </div>
                   )}
