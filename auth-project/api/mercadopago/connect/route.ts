@@ -35,7 +35,7 @@ export async function GET(request: Request) {
 
     // Redirigir de vuelta al proyecto original
     return NextResponse.redirect(`https://${projectUrl}/mercadopagoauth/success`);
-  } catch (error) {
+  } catch {
     return NextResponse.redirect(`https://${searchParams.get('state') || ''}/mercadopagoauth/error`);
   }
 } 

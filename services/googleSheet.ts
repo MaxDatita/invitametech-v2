@@ -59,8 +59,6 @@ export async function getUnsentTickets(email: string): Promise<TicketData[]> {
     const rows = await sheet.getRows();
     const tickets: TicketData[] = [];
 
-    console.log('Email buscado:', email);
-
     rows.forEach((row, index) => {
       const rowEmail = row.get('Email')?.trim();  // Columna D (texto)
       const enviado = row.get('Email Enviado');   // Columna I (checkbox)
@@ -73,28 +71,12 @@ export async function getUnsentTickets(email: string): Promise<TicketData[]> {
       const isNotSent = enviado !== 'TRUE' && enviado !== true;
       const isValidQR = typeof qrCode === 'string' && qrCode.length > 0;
 
-      console.log(`Fila ${index + 2}:`, {
-        rowEmail,
-        emailBuscado: email,
-        coincide: rowEmail === email,
-        idValido: isValidId,
-        enviado: enviado,
-        qrCode: qrCode,
-        rawValues: {
-          email: rowEmail,
-          enviado: enviado,
-          id: id,
-          qrCode: qrCode
-        }
-      });
-
       if (
         rowEmail === email && 
         isNotSent && 
         isValidId &&
         isValidQR
       ) {
-        console.log(`✅ Ticket válido encontrado en fila ${index + 2}`);
         tickets.push({
           ticketId: id,
           ticketType: row.get('Ticket'),
@@ -102,23 +84,13 @@ export async function getUnsentTickets(email: string): Promise<TicketData[]> {
           rowIndex: index + 2
         });
       } else {
-        console.log(`❌ Ticket no válido en fila ${index + 2}:`, {
-          coincideEmail: rowEmail === email,
-          noEnviado: isNotSent,
-          idValido: isValidId,
-          tieneQR: isValidQR
-        });
+        console.log(`❌ Ticket no válido en fila ${index + 2}:`)
       }
     });
 
     // Validar que todos los tickets tengan QR válido
     const validTickets = tickets.filter(ticket => ticket.qrCode);
     
-    if (validTickets.length !== tickets.length) {
-      console.warn(`⚠️ Se encontraron ${tickets.length} tickets pero solo ${validTickets.length} tienen QR válido`);
-    }
-
-    console.log(`Total tickets válidos encontrados: ${validTickets.length}`);
     return validTickets;
   } catch (error) {
     console.error('Error obteniendo tickets:', error);
@@ -133,8 +105,6 @@ export async function markTicketsAsSent(rowIndexes: number[]) {
     if (!sheet) {
       throw new Error('No se encontró la hoja "Invitados"');
     }
-
-    console.log('Intentando marcar como enviados los tickets en filas:', rowIndexes);
 
     // Obtener todas las filas
     const rows = await sheet.getRows();
@@ -151,19 +121,11 @@ export async function markTicketsAsSent(rowIndexes: number[]) {
           continue;
         }
 
-        // Imprimir el estado actual de la fila
-        console.log(`Estado actual de fila ${rowIndex}:`, {
-          email: row.get('Email'),
-          enviado: row.get('Email Enviado')
-        });
-
         // Actualizar el valor - usando el método correcto
         row.set('Email Enviado', 'TRUE');
 
         // Guardar la fila
         await row.save();
-        
-        console.log(`✅ Fila ${rowIndex} marcada como enviada`);
       } catch (rowError) {
         console.error(`Error al procesar fila ${rowIndex}:`, rowError);
       }

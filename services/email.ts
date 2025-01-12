@@ -22,8 +22,6 @@ interface EventData {
 // Función auxiliar para convertir imagen a base64
 async function imageToBase64(url: string): Promise<string> {
   try {
-    console.log('Intentando convertir a base64:', url);
-
     // Si la URL está vacía o es inválida, lanzar error
     if (!url) {
       throw new Error('URL de imagen vacía');
@@ -51,8 +49,6 @@ async function imageToBase64(url: string): Promise<string> {
     if (!base64) {
       throw new Error('Error al convertir imagen a base64');
     }
-
-    console.log('✅ Imagen convertida exitosamente a base64');
     return `data:image/png;base64,${base64}`;
 
   } catch (error) {
@@ -83,18 +79,15 @@ export async function sendTicketEmail(data: TicketEmailData) {
     const { eventData, tickets } = await googleResponse.json() as { eventData: EventData; tickets: Ticket[] };
 
     if (!tickets || tickets.length === 0) {
-      console.log('No hay tickets pendientes de envío para este email');
       return null;
     }
 
-    console.log('Esperando 15 segundos para que Google Sheets genere los QR codes...');
     await wait(15000); // Esperar 15 segundos
 
     // Convertir QRs a base64
     const ticketsWithBase64QR = await Promise.all(
       tickets.map(async (ticket) => {
         try {
-          console.log(`Procesando QR para ticket ${ticket.ticketId}`);
           const qrBase64 = await imageToBase64(ticket.qrCode);
           return {
             ...ticket,
@@ -179,11 +172,10 @@ export async function sendTicketEmail(data: TicketEmailData) {
     });
 
     const responseData = await emailResponse.json();
-    console.log('Respuesta del servidor de email:', responseData);
 
     // Verificamos si el email fue encolado correctamente
     if (responseData.queued) {
-      console.log('Email encolado exitosamente, intentando marcar tickets...', {
+      console.log('Email en cola...', {
         emailId: responseData.id,
         rowIndexes: tickets.map(ticket => ticket.rowIndex)
       });

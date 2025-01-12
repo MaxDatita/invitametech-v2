@@ -16,13 +16,6 @@ interface PaymentData {
 async function handleSuccessfulPayment(paymentData: PaymentData) {
   try {
     const { nombre, email, tipoTicket, cantidad } = paymentData;
-    
-    console.log('Registrando tickets con datos:', {
-      nombre,
-      email,
-      tipoTicket,
-      cantidad
-    });
 
     // Registrar los tickets en Google Sheets
     const registroResponse = await fetch('/api/google-sheets/register', {

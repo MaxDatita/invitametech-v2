@@ -94,8 +94,6 @@ function generateQRFormula(rowNumber: number): string {
 
 export async function registrarTickets(nombre: string, email: string, tipoTicket: string, cantidad: number) {
   try {
-    console.log('Iniciando registro de tickets:', { nombre, email, tipoTicket, cantidad });
-
     const jwt = new JWT({
       email: process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
       key: process.env.GOOGLE_PRIVATE_KEY?.split(String.raw`\n`).join('\n'),
@@ -145,8 +143,6 @@ export async function registrarTickets(nombre: string, email: string, tipoTicket
 
     // Agregar todas las filas de una vez
     await sheet.addRows(newRows);
-    
-    console.log(`✅ Registrados ${cantidad} tickets para ${email}`);
     return true;
   } catch (error) {
     console.error('Error registrando tickets:', {
