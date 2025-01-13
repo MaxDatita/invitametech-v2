@@ -130,7 +130,7 @@ export async function sendTicketEmail(data: TicketEmailData) {
     const emailHtml = `
       <div style="font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto;">
         <div style="text-align: center; margin-bottom: 30px;">
-          <img src="${logoUrl}" alt="Eventechy" style="width: 200px;"/>
+          <img src="${logoUrl}" alt="Eventechy" style="width: 300px;"/>
         </div>
         
         <h2 style="color: #ff7e33;">Tickets del evento: ${eventData.eventName}</h2>

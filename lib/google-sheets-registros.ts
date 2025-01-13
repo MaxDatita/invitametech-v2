@@ -175,14 +175,13 @@ export async function saveSellerToken(token: string): Promise<void> {
     tokenCell.value = token;
     await sheet.saveUpdatedCells();
     
-    console.log('Token saved to cell C2');
   } catch (error) {
     console.error('Error saving seller token:', error);
     throw error;
   }
 }
 
-// Usar toquen del vendedor para la venta de tickets
+// Usar token del vendedor para la venta de tickets
 export async function getSellerToken(): Promise<string | null> {
   try {
     const jwt = new JWT({
