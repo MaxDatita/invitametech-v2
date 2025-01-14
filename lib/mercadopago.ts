@@ -16,7 +16,7 @@ export interface CreatePreferenceData {
 
 export async function createPreference(data: CreatePreferenceData) {
   try {
-    // Obtener el token del vendedor de Google Sheets
+    // Obtener el token del vendedor de Google Sheetss
     const sellerToken = await getSellerToken();
     if (!sellerToken) {
       throw new Error('No seller token found');
