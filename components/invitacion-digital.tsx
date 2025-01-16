@@ -352,7 +352,7 @@ export function InvitacionDigitalComponent() {
           <div>
             <div className='countdown-message'>
               Te esperamos este {eventDate.toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}  
-              , {eventDate.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' })}hs para pasar una noche inolvidable.
+              , {eventDate.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit', hour12: false })}hs para pasar una noche inolvidable.
             </div>
             <div className='body-base text-center mb-2'> Faltan: </div>
             <div className="countdown-container">
