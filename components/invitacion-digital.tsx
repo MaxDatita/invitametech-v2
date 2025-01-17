@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
-import { MessageSquare, MailPlus, Image as ImageIcon } from 'lucide-react'
+import { MessageSquare, MailPlus, Image as ImageIcon, Ticket } from 'lucide-react'
 import Image from 'next/image'
 import { useQuery, useInfiniteQuery } from '@tanstack/react-query';
 import { theme } from '@/config/theme';
@@ -13,6 +13,7 @@ import { StyledDialog } from "@/components/ui/styled-dialog"
 import { MenuModal } from "@/components/ui/menu-modal"
 import { LogisticsModal } from "@/components/ui/logistics-modal"
 import { TicketsModal } from "@/components/ui/tickets-modal"
+import { Card } from "@/components/ui/card"
 
 
 const gradientColors = [
@@ -104,6 +105,8 @@ export function InvitacionDigitalComponent() {
   const [showUpdateButton, setShowUpdateButton] = useState(false);
   const [selectedTab, setSelectedTab] = useState<'bebidas' | 'comidas'>('bebidas');
   const [showLive, setShowLive] = useState(false)
+  const [showExpirationModal, setShowExpirationModal] = useState(false);
+  const [showTicketsModal, setShowTicketsModal] = useState(false);
 
   const eventDate = useMemo(() => new Date(theme.dates.event), []);
   const contentActivationDate = new Date(theme.dates.contentActivation);
@@ -456,9 +459,49 @@ export function InvitacionDigitalComponent() {
               </form>
             </DialogContent>
           </Dialog>
-          {isRsvpActive && (
-            <TicketsModal />
-          )}
+          {isRsvpActive ? (
+            <>
+              <Dialog open={showExpirationModal} onOpenChange={setShowExpirationModal}>
+                <DialogContent className="sm:max-w-[425px]">
+                  <DialogHeader>
+                    <DialogTitle>Venta de Tickets Finalizada</DialogTitle>
+                  </DialogHeader>
+                  <Card className="auth-card">
+                    <div className="auth-card-content">
+                      <p className="auth-card-text">
+                        Lo sentimos, el tiempo para comprar tickets ha finalizado.
+                      </p>
+                      <Button 
+                        variant="primary" 
+                        onClick={() => setShowExpirationModal(false)}
+                      >
+                        Entendido
+                      </Button>
+                    </div>
+                  </Card>
+                </DialogContent>
+              </Dialog>
+
+              <Button
+                variant="primary"
+                className="col-span-2 flex items-center justify-center"
+                onClick={() => {
+                  const now = new Date();
+                  const rsvpDeadline = new Date(theme.dates.rsvpDeadline);
+                  if (now > rsvpDeadline) {
+                    setShowExpirationModal(true);
+                  } else {
+                    setShowTicketsModal(true);
+                  }
+                }}
+              >
+                <Ticket className="mr-2 h-4 w-4" />
+                Comprar Tickets
+              </Button>
+
+              {showTicketsModal && <TicketsModal />}
+            </>
+          ) : null}
         </div>
       </div>
 
