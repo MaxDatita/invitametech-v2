@@ -14,6 +14,7 @@ import { MenuModal } from "@/components/ui/menu-modal"
 import { LogisticsModal } from "@/components/ui/logistics-modal"
 import { TicketsModal } from "@/components/ui/tickets-modal"
 import { Card } from "@/components/ui/card"
+import { toast } from 'sonner'
 
 
 const gradientColors = [
@@ -107,6 +108,7 @@ export function InvitacionDigitalComponent() {
   const [showLive, setShowLive] = useState(false)
   const [showExpirationModal, setShowExpirationModal] = useState(false);
   const [showTicketsModal, setShowTicketsModal] = useState(false);
+  const [isRsvpActive, setIsRsvpActive] = useState(true);
 
   const eventDate = useMemo(() => new Date(theme.dates.event), []);
   const contentActivationDate = new Date(theme.dates.contentActivation);
@@ -207,7 +209,6 @@ export function InvitacionDigitalComponent() {
   }, [eventStarted, carouselMessages.length])
 
   const isContentActive = currentDate >= contentActivationDate
-  const isRsvpActive = currentDate < rsvpDeadline
 
   const handleMessageClick = useCallback((message: { id: number; nombre: string; mensaje: string }) => {
     setSelectedMessage({
@@ -262,16 +263,43 @@ export function InvitacionDigitalComponent() {
   };
 
   // Función para verificar si la fecha está vencida
-  const isDeadlinePassed = () => {
+  const isDeadlinePassed = useCallback(() => {
     const now = new Date();
     const rsvpDeadline = new Date(theme.dates.rsvpDeadline);
     return now > rsvpDeadline;
-  };
+  }, []); // Memoizar la función
+
+  // Efecto optimizado
+  useEffect(() => {
+    // Verificar inmediatamente
+    setIsRsvpActive(!isDeadlinePassed());
+
+    // Solo crear el intervalo si el modal está abierto
+    if (showTicketsModal) {
+      const interval = setInterval(() => {
+        if (isDeadlinePassed()) {
+          setShowTicketsModal(false);
+          setShowExpirationModal(true);
+          setIsRsvpActive(false);
+          toast.error('El tiempo para comprar tickets ha expirado', {
+            duration: 5000,
+            position: 'top-center'
+          });
+        }
+      }, 60000);
+
+      return () => clearInterval(interval);
+    }
+  }, [showTicketsModal, isDeadlinePassed]);
 
   // Manejar el click del botón de tickets
   const handleTicketButtonClick = () => {
     if (isDeadlinePassed()) {
       setShowExpirationModal(true);
+      toast.error('El tiempo para comprar tickets ha expirado', {
+        duration: 5000,
+        position: 'top-center'
+      });
     } else {
       setShowTicketsModal(true);
     }
@@ -511,7 +539,6 @@ export function InvitacionDigitalComponent() {
                 <Dialog 
                   open={showTicketsModal} 
                   onOpenChange={(open) => {
-                    // Verificar fecha al intentar abrir el modal
                     if (open && isDeadlinePassed()) {
                       setShowExpirationModal(true);
                     } else {
