@@ -34,6 +34,7 @@ const ticketTypes: TicketType[] = [
 export function TicketsModal() {
   const [isExpired, setIsExpired] = useState(false)
   const [showExpirationModal, setShowExpirationModal] = useState(false)
+  const [showPurchaseModal, setShowPurchaseModal] = useState(false)
   
   // Verificar si la fecha límite ha pasado
   const checkExpiration = () => {
@@ -53,6 +54,7 @@ export function TicketsModal() {
       return
     }
     // Si no expiró, mostrar el modal original de compra
+    setShowPurchaseModal(true)
   }
 
   // Modal de expiración
@@ -143,15 +145,8 @@ export function TicketsModal() {
       {!isExpired && (
         <StyledDialog
           title="Comprar Tickets"
-          trigger={
-            <Button 
-              variant="primary" 
-              className="col-span-2 flex items-center justify-center hidden"
-            >
-              <Ticket className="mr-2 h-4 w-4" /> 
-              Comprar Tickets
-            </Button>
-          }
+          open={showPurchaseModal}
+          onOpenChange={setShowPurchaseModal}
         >
           <form onSubmit={handleSubmit} className="grid gap-4">
             <div className="space-y-2">
