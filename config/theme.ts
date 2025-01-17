@@ -53,7 +53,7 @@ export const theme = {
   dates: {
     event: '2025-02-15T10:30:00', // Fecha del evento
     contentActivation: '2024-10-01T00:00:00', // Fecha de activación del contenido
-    rsvpDeadline: '2024-11-30T00:00:00', // Fecha límite para confirmar asistencia
+    rsvpDeadline: '2025-11-30T00:00:00', // Fecha límite para confirmar asistencia
     liveEnd: '2024-12-30T23:59:59', // Fecha en que desaparece el indicador LIVE
   },
 

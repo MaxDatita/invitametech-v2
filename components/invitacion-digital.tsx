@@ -112,7 +112,6 @@ export function InvitacionDigitalComponent() {
 
   const eventDate = useMemo(() => new Date(theme.dates.event), []);
   const contentActivationDate = new Date(theme.dates.contentActivation);
-  const rsvpDeadline = new Date(theme.dates.rsvpDeadline);
   const liveEndDate = useMemo(() => new Date(theme.dates.liveEnd), []);
 
   // Query para el carrusel (aleatoria)
@@ -257,11 +256,6 @@ export function InvitacionDigitalComponent() {
     }
   };
 
-  const handleUpdate = () => {
-    setShowUpdateButton(false);
-    window.location.reload();
-  };
-
   // Función para verificar si la fecha está vencida
   const isDeadlinePassed = useCallback(() => {
     const now = new Date();
@@ -398,8 +392,8 @@ export function InvitacionDigitalComponent() {
         ) : (
           <div>
             <div className='countdown-message'>
-              Te esperamos este {eventDate.toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}  
-              , {eventDate.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit', hour12: false })}hs para pasar una noche inolvidable.
+              Te esperamos este {eventDate.toLocaleDateString('es-ES', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}  
+              , {eventDate.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit', hour12: false })}hs para pasar una noche inolvidable.
             </div>
             <div className='body-base text-center mb-2'> Faltan: </div>
             <div className="countdown-container">
