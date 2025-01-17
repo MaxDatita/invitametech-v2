@@ -459,7 +459,7 @@ export function InvitacionDigitalComponent() {
               </form>
             </DialogContent>
           </Dialog>
-          {isRsvpActive ? (
+          {isRsvpActive && (
             <>
               <Dialog open={showExpirationModal} onOpenChange={setShowExpirationModal}>
                 <DialogContent className="sm:max-w-[425px]">
@@ -499,9 +499,19 @@ export function InvitacionDigitalComponent() {
                 Comprar Tickets
               </Button>
 
-              {showTicketsModal && <TicketsModal />}
+              <Dialog 
+                open={showTicketsModal} 
+                onOpenChange={setShowTicketsModal}
+              >
+                <DialogContent className="sm:max-w-[425px]">
+                  <DialogHeader>
+                    <DialogTitle>Comprar Tickets</DialogTitle>
+                  </DialogHeader>
+                  <TicketsModal onClose={() => setShowTicketsModal(false)} />
+                </DialogContent>
+              </Dialog>
             </>
-          ) : null}
+          )}
         </div>
       </div>
 
