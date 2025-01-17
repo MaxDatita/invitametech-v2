@@ -261,6 +261,22 @@ export function InvitacionDigitalComponent() {
     window.location.reload();
   };
 
+  // Función para verificar si la fecha está vencida
+  const isDeadlinePassed = () => {
+    const now = new Date();
+    const rsvpDeadline = new Date(theme.dates.rsvpDeadline);
+    return now > rsvpDeadline;
+  };
+
+  // Manejar el click del botón de tickets
+  const handleTicketButtonClick = () => {
+    if (isDeadlinePassed()) {
+      setShowExpirationModal(true);
+    } else {
+      setShowTicketsModal(true);
+    }
+  };
+
   //Comienzo la invitacion digital
   return (
     <div className="min-h-screen pt-6 pb-6 pl-6 pr-6 bg-gradient-animation">
@@ -485,31 +501,32 @@ export function InvitacionDigitalComponent() {
               <Button
                 variant="primary"
                 className="col-span-2 flex items-center justify-center"
-                onClick={() => {
-                  const now = new Date();
-                  const rsvpDeadline = new Date(theme.dates.rsvpDeadline);
-                  if (now > rsvpDeadline) {
-                    setShowExpirationModal(true);
-                  } else {
-                    setShowTicketsModal(true);
-                  }
-                }}
+                onClick={handleTicketButtonClick}
               >
                 <Ticket className="mr-2 h-4 w-4" />
                 Comprar Tickets
               </Button>
 
-              <Dialog 
-                open={showTicketsModal} 
-                onOpenChange={setShowTicketsModal}
-              >
-                <DialogContent className="sm:max-w-[425px]">
-                  <DialogHeader>
-                    <DialogTitle>Comprar Tickets</DialogTitle>
-                  </DialogHeader>
-                  <TicketsModal onClose={() => setShowTicketsModal(false)} />
-                </DialogContent>
-              </Dialog>
+              {!isDeadlinePassed() && (
+                <Dialog 
+                  open={showTicketsModal} 
+                  onOpenChange={(open) => {
+                    // Verificar fecha al intentar abrir el modal
+                    if (open && isDeadlinePassed()) {
+                      setShowExpirationModal(true);
+                    } else {
+                      setShowTicketsModal(open);
+                    }
+                  }}
+                >
+                  <DialogContent className="sm:max-w-[425px]">
+                    <DialogHeader>
+                      <DialogTitle>Comprar Tickets</DialogTitle>
+                    </DialogHeader>
+                    <TicketsModal onClose={() => setShowTicketsModal(false)} />
+                  </DialogContent>
+                </Dialog>
+              )}
             </>
           )}
         </div>
