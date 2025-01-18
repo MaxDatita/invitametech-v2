@@ -256,45 +256,54 @@ export function InvitacionDigitalComponent() {
     }
   };
 
-  // Función para verificar si la fecha está vencida
-  const isDeadlinePassed = useCallback(() => {
+  // Verificar fecha al cargar la página y cada 30 minutos
+  useEffect(() => {
+    // Función para verificar y actualizar el estado
+    const checkRsvpStatus = () => {
+      const now = new Date();
+      const rsvpDeadline = new Date(theme.dates.rsvpDeadline);
+      const isActive = now <= rsvpDeadline;
+      
+      console.log('Verificando estado RSVP:', {
+        ahora: now.toLocaleString(),
+        fechaLimite: rsvpDeadline.toLocaleString(),
+        estaActivo: isActive
+      });
+
+      setIsRsvpActive(isActive);
+    };
+
+    // Verificar inmediatamente al cargar
+    checkRsvpStatus();
+
+    // Verificar cada 30 minutos
+    const interval = setInterval(checkRsvpStatus, 30 * 60 * 1000);
+
+    // Limpiar intervalo al desmontar
+    return () => clearInterval(interval);
+  }, []);
+
+  // Función para verificar si la fecha está vencida (en tiempo real)
+  const isDeadlinePassed = () => {
     const now = new Date();
     const rsvpDeadline = new Date(theme.dates.rsvpDeadline);
+    console.log('Verificando fecha límite:', {
+      ahora: now.toLocaleString(),
+      fechaLimite: rsvpDeadline.toLocaleString(),
+      estaVencido: now > rsvpDeadline
+    });
     return now > rsvpDeadline;
-  }, []); // Memoizar la función
-
-  // Efecto optimizado
-  useEffect(() => {
-    // Verificar inmediatamente
-    setIsRsvpActive(!isDeadlinePassed());
-
-    // Solo crear el intervalo si el modal está abierto
-    if (showTicketsModal) {
-      const interval = setInterval(() => {
-        if (isDeadlinePassed()) {
-          setShowTicketsModal(false);
-          setShowExpirationModal(true);
-          setIsRsvpActive(false);
-          toast.error('El tiempo para comprar tickets ha expirado', {
-            duration: 5000,
-            position: 'top-center'
-          });
-        }
-      }, 60000);
-
-      return () => clearInterval(interval);
-    }
-  }, [showTicketsModal, isDeadlinePassed]);
+  };
 
   // Manejar el click del botón de tickets
   const handleTicketButtonClick = () => {
+    console.log('Botón de tickets clickeado');
+    
     if (isDeadlinePassed()) {
+      console.log('Fecha límite vencida - Mostrando modal de expiración');
       setShowExpirationModal(true);
-      toast.error('El tiempo para comprar tickets ha expirado', {
-        duration: 5000,
-        position: 'top-center'
-      });
     } else {
+      console.log('Fecha límite vigente - Abriendo modal de compra');
       setShowTicketsModal(true);
     }
   };
@@ -504,13 +513,14 @@ export function InvitacionDigitalComponent() {
                   <DialogHeader>
                     <DialogTitle>Venta de Tickets Finalizada</DialogTitle>
                   </DialogHeader>
-                  <Card className="auth-card">
+                  <Card className="border-none bg-transparent border-0">
                     <div className="auth-card-content">
                       <p className="auth-card-text">
                         Lo sentimos, el tiempo para comprar tickets ha finalizado.
                       </p>
                       <Button 
                         variant="primary" 
+                        className="w-full"
                         onClick={() => setShowExpirationModal(false)}
                       >
                         Entendido
@@ -529,25 +539,17 @@ export function InvitacionDigitalComponent() {
                 Comprar Tickets
               </Button>
 
-              {!isDeadlinePassed() && (
-                <Dialog 
-                  open={showTicketsModal} 
-                  onOpenChange={(open) => {
-                    if (open && isDeadlinePassed()) {
-                      setShowExpirationModal(true);
-                    } else {
-                      setShowTicketsModal(open);
-                    }
-                  }}
-                >
-                  <DialogContent className="sm:max-w-[425px]">
-                    <DialogHeader>
-                      <DialogTitle>Comprar Tickets</DialogTitle>
-                    </DialogHeader>
-                    <TicketsModal onClose={() => setShowTicketsModal(false)} />
-                  </DialogContent>
-                </Dialog>
-              )}
+              <Dialog 
+                open={showTicketsModal} 
+                onOpenChange={setShowTicketsModal}
+              >
+                <DialogContent className="sm:max-w-[425px]">
+                  <DialogHeader>
+                    <DialogTitle>Comprar Tickets</DialogTitle>
+                  </DialogHeader>
+                  <TicketsModal onClose={() => setShowTicketsModal(false)} />
+                </DialogContent>
+              </Dialog>
             </>
           )}
         </div>
@@ -594,6 +596,23 @@ export function InvitacionDigitalComponent() {
           </div>
         </DialogContent>
       </Dialog>
+
+      <div className="mt-8 flex justify-center">
+        <a 
+          href="https://eventechy.com" 
+          target="_blank" 
+          rel="noopener noreferrer"
+          className="hover:opacity-80 transition-opacity"
+        >
+          <Image
+            src="/logo-fondo-oscuro.png"  // Asegúrate de tener este archivo en la carpeta public
+            alt="Eventechy"
+            width={155}
+            height={55}
+            className="rounded-lg"
+          />
+        </a>
+      </div>
     </div>
   )
 }

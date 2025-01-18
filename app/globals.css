@@ -194,6 +194,15 @@
   .auth-card-text {
     @apply body-base-alt;
   }
+
+  /* Logo styles */
+  .eventechy-logo {
+    filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.3));
+  }
+
+  .eventechy-logo:hover {
+    filter: drop-shadow(0 0 12px rgba(255, 255, 255, 0.5));
+  }
 }
 
 

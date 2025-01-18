@@ -3,6 +3,7 @@
 import { Html5Qrcode } from 'html5-qrcode';
 import { useEffect, useState, useRef } from 'react';
 import { Button } from "@/components/ui/button"
+import Image from 'next/image';
 
 interface ScanResult {
   success: boolean;
@@ -223,6 +224,22 @@ const QRScanner = () => {
               </Button>
             </>
           )}
+        </div>
+        <div className="mt-8 flex justify-center">
+          <a 
+            href="https://eventechy.com" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="hover:opacity-80 transition-opacity"
+          >
+            <Image
+              src="/logo-fondo-oscuro.png"
+              alt="Eventechy"
+              width={155}
+              height={55}
+              className="rounded-lg eventechy-logo"
+            />
+          </a>
         </div>
       </div>
     </div>

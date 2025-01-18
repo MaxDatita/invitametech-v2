@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Loader2 } from 'lucide-react'
-
+import Image from 'next/image'
 export default function MercadoPagoAuthPage() {
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -64,8 +64,27 @@ export default function MercadoPagoAuthPage() {
 
           <p className="text-sm opacity-70">
             Al conectar tu cuenta, aceptas nuestros términos y condiciones para el procesamiento
-            de pagos y la gestión de tickets.
+            de pagos y la gestión de tickets. Si quieres revisar nuestros términos y condiciones, puedes hacerlo 
+            <a href="https://www.eventechy.com/terminos" target="_blank" rel="noopener noreferrer" className="text-sm underline">
+              aquí
+            </a>.
           </p>
+        </div>
+        <div className="mt-8 flex justify-center">
+          <a 
+            href="https://eventechy.com" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="hover:opacity-80 transition-opacity"
+          >
+            <Image
+              src="/logo-fondo-oscuro.png"
+              alt="Eventechy"
+              width={155}
+              height={55}
+              className="rounded-lg eventechy-logo"
+            />
+          </a>
         </div>
       </Card>
     </div>
