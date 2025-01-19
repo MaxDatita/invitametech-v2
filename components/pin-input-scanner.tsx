@@ -58,10 +58,10 @@ export default function PinInput({ onValidPin }: PinInputProps) {
           className="text-center text-2xl"
           inputMode="numeric"
         />
-        {error && <p className="text-red-500 text-sm text-center">{error}</p>}
         <Button type="submit" className="w-full" disabled={pin.length !== 4}>
           Verificar
         </Button>
+        {error && <p className="text-red-500 text-sm text-center">{error}</p>}
       </form>
       <div className="mt-8 flex justify-center absolute bottom-0 left-0 right-0 mb-8">
           <a 
