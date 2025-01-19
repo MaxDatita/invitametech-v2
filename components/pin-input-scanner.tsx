@@ -45,7 +45,7 @@ export default function PinInput({ onValidPin }: PinInputProps) {
       </div>
       <form onSubmit={handleSubmit} className="w-full max-w-xs space-y-4">
         <Input
-          type="password"
+          type="tel"
           maxLength={4}
           placeholder="Ingrese el PIN"
           value={pin}
@@ -54,6 +54,7 @@ export default function PinInput({ onValidPin }: PinInputProps) {
             setError('')
           }}
           className="text-center text-2xl"
+          inputMode="numeric"
         />
         {error && <p className="text-red-500 text-sm text-center">{error}</p>}
         <Button type="submit" className="w-full" disabled={pin.length !== 4}>
