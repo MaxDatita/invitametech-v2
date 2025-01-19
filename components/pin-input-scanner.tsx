@@ -29,9 +29,11 @@ export default function PinInput({ onValidPin }: PinInputProps) {
         onValidPin()
       } else {
         setError('PIN incorrecto')
+        setPin('')
       }
     } catch (error) {
       setError('Error al verificar el PIN')
+      setPin('')
     }
   }
 
