@@ -64,13 +64,12 @@ export default function MercadoPagoAuthPage() {
 
           <p className="text-sm opacity-70">
             Al conectar tu cuenta, aceptas nuestros términos y condiciones para el procesamiento
-            de pagos y la gestión de tickets. Si quieres revisar nuestros términos y condiciones, puedes hacerlo 
-            <a href="https://www.eventechy.com/terminos" target="_blank" rel="noopener noreferrer" className="text-sm underline">
+            de pagos y la gestión de tickets. Puedes revisar nuestros términos y condiciones <a href="https://www.eventechy.com/terminos" target="_blank" rel="noopener noreferrer" className="text-sm underline font-bold opacity-80">
               aquí
             </a>.
           </p>
         </div>
-        <div className="mt-8 flex justify-center">
+        <div className="mt-8 flex justify-center absolute bottom-0 left-0 right-0 mb-4">
           <a 
             href="https://eventechy.com" 
             target="_blank" 

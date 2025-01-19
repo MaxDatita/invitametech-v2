@@ -205,3 +205,26 @@ export async function getSellerToken(): Promise<string | null> {
   }
 } 
 
+export async function getScannerPin(): Promise<string | null> {
+  try {
+    const jwt = new JWT({
+      email: process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
+      key: process.env.GOOGLE_PRIVATE_KEY?.split(String.raw`\n`).join('\n'),
+      scopes: ['https://www.googleapis.com/auth/spreadsheets'],
+    });
+
+    const doc = new GoogleSpreadsheet(process.env.GOOGLE_SHEET_ID!, jwt);
+    await doc.loadInfo();
+    
+    const sheet = doc.sheetsByTitle['Datos'];
+    if (!sheet) return null;
+
+    await sheet.loadCells('C6');
+    const pinCell = sheet.getCell(5, 2); // C6 en coordenadas 0-based
+    return pinCell.value?.toString() || null;
+  } catch (error) {
+    console.error('Error obteniendo PIN del scanner:', error);
+    return null;
+  }
+} 
+

@@ -160,6 +160,14 @@ export function TicketsModal({ onClose }: { onClose: () => void }) {
         />
       </div>
 
+      <div>
+        <p className="text-sm text-justify">
+          <span>
+            <span className="font-bold">Nota:</span> Asegúrate de que los datos sean correctos para recibir tus tickets. Pago administrado por <span className="text-gray-400 font-bold">MercadoPago</span>.
+          </span>
+        </p>
+      </div>
+
       <div className="py-2 text-lg font-semibold border-t">
         Total a pagar: ${total}
       </div>

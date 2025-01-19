@@ -225,7 +225,7 @@ const QRScanner = () => {
             </>
           )}
         </div>
-        <div className="mt-8 flex justify-center">
+        <div className="mt-8 flex justify-center absolute bottom-0 left-0 right-0 mb-4">
           <a 
             href="https://eventechy.com" 
             target="_blank" 
