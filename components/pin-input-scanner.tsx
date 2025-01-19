@@ -40,7 +40,7 @@ export default function PinInput({ onValidPin }: PinInputProps) {
       <div>
         <h1 className="heading-h1 text-center mb-4"> Scanner</h1>
         <p className="body-base text-center mb-4">
-          Colola el PIN proporcionado para acceder.
+          Coloca el PIN proporcionado para acceder.
         </p>
       </div>
       <form onSubmit={handleSubmit} className="w-full max-w-xs space-y-4">
