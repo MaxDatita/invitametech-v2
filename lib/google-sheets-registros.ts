@@ -1,5 +1,6 @@
 import { GoogleSpreadsheet, GoogleSpreadsheetWorksheet } from 'google-spreadsheet';
 import { JWT } from 'google-auth-library';
+import { theme } from '../config/theme';
 
 interface Message {
   id: number;
@@ -11,6 +12,12 @@ interface MessagesResponse {
   messages: Message[];
   hasMore: boolean;
   total: number;
+}
+
+type TicketAvailabilityResponse = {
+  available: boolean;
+  remainingTickets: number;
+  error?: string;
 }
 
 export async function getMessages(
@@ -94,6 +101,13 @@ function generateQRFormula(rowNumber: number): string {
 
 export async function registrarTickets(nombre: string, email: string, tipoTicket: string, cantidad: number) {
   try {
+    // Verificar disponibilidad antes de registrar
+    const availability = await checkTicketAvailability(tipoTicket, cantidad);
+    
+    if (!availability.available) {
+      throw new Error(`No hay suficientes tickets disponibles. Quedan: ${availability.remainingTickets}`);
+    }
+
     const jwt = new JWT({
       email: process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
       key: process.env.GOOGLE_PRIVATE_KEY?.split(String.raw`\n`).join('\n'),
@@ -227,4 +241,28 @@ export async function getScannerPin(): Promise<string | null> {
     return null;
   }
 } 
+
+export const checkTicketAvailability = async (
+  ticketType: string,
+  requestedQuantity: number
+): Promise<TicketAvailabilityResponse> => {
+  try {
+    const response = await fetch(
+      `/api/check-tickets?type=${ticketType}&quantity=${requestedQuantity}`
+    );
+
+    if (!response.ok) {
+      throw new Error('Error al verificar disponibilidad');
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error('Error verificando disponibilidad:', error);
+    return {
+      available: false,
+      remainingTickets: 0,
+      error: 'Error al verificar disponibilidad'
+    };
+  }
+}; 
 

@@ -53,7 +53,7 @@ export const theme = {
   dates: {
     event: '2025-02-15T10:30:00', // Fecha del evento
     contentActivation: '2024-10-01T00:00:00', // Fecha de activación del contenido
-    rsvpDeadline: '2025-11-29T00:00:00', // Fecha límite para confirmar asistencia
+    rsvpDeadline: '2025-11-29T00:00:00', // Fecha límite para venta de tickets
     liveEnd: '2024-12-30T23:59:59', // Fecha en que desaparece el indicador LIVE
   },
 
@@ -65,6 +65,30 @@ export const theme = {
       video: '/vidfest.mp4',
       title: '/eventest.webp'
     },
+  },
+
+  // Configuración de tickets
+  tickets: {
+    lotes: {
+      enabled: true, // habilitar/deshabilitar sistema de lotes
+      maxTicketsPerLot: 131, // 0 para ventas ilimitadas
+      currentLot: 1, // número de lote actual
+      soldOutMessage: "Lote agotado", // mensaje cuando se agota el lote actual
+      nextLotMessage: "El 15/03 se habilitan 100 tickets", // mensaje informativo sobre próximo lote
+    },
+    types: [
+      {
+        id: 'vip',
+        name: 'Vip',
+        maxPerLot: 0, // 0 para sin límite específico para este tipo
+        soldOutMessage: "Early Bird agotado", // mensaje específico por tipo
+      },
+      {
+        id: 'regular',
+        name: 'Regular',
+        maxPerLot: 0, // sin límite específico
+      }
+    ]
   },
 
   // // Configuración del título

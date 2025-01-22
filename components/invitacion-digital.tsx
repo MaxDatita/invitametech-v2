@@ -15,6 +15,7 @@ import { LogisticsModal } from "@/components/ui/logistics-modal"
 import { TicketsModal } from "@/components/ui/tickets-modal"
 import { Card } from "@/components/ui/card"
 import { toast } from 'sonner'
+import { checkTicketAvailability } from '@/lib/google-sheets-registros'
 
 
 const gradientColors = [
@@ -109,6 +110,7 @@ export function InvitacionDigitalComponent() {
   const [showExpirationModal, setShowExpirationModal] = useState(false);
   const [showTicketsModal, setShowTicketsModal] = useState(false);
   const [isRsvpActive, setIsRsvpActive] = useState(true);
+  const [ticketAvailability, setTicketAvailability] = useState<{[key: string]: number}>({})
 
   const eventDate = useMemo(() => new Date(theme.dates.event), []);
   const contentActivationDate = new Date(theme.dates.contentActivation);
@@ -256,32 +258,54 @@ export function InvitacionDigitalComponent() {
     }
   };
 
-  // Verificar fecha al cargar la página y cada 30 minutos
-  useEffect(() => {
-    // Función para verificar y actualizar el estado
-    const checkRsvpStatus = () => {
-      const now = new Date();
-      const rsvpDeadline = new Date(theme.dates.rsvpDeadline);
-      const isActive = now <= rsvpDeadline;
+  // Función para verificar disponibilidad de tickets
+  const checkAllTicketsAvailability = useCallback(async () => {
+    try {
+      const availability: {[key: string]: number} = {};
       
-      console.log('Verificando estado RSVP:', {
-        ahora: now.toLocaleString(),
-        fechaLimite: rsvpDeadline.toLocaleString(),
-        estaActivo: isActive
+      for (const ticket of theme.tickets.types) {
+        const result = await checkTicketAvailability(ticket.id, 1);
+        availability[ticket.id] = result.remainingTickets;
+      }
+      
+      setTicketAvailability(availability);
+    } catch (error) {
+      console.error('Error al verificar disponibilidad:', error);
+      // En caso de error, asumimos que no hay tickets disponibles
+      const errorAvailability: {[key: string]: number} = {};
+      theme.tickets.types.forEach(ticket => {
+        errorAvailability[ticket.id] = 0;
       });
+      setTicketAvailability(errorAvailability);
+    }
+  }, []);
 
-      setIsRsvpActive(isActive);
+  // useEffect para verificar RSVP y disponibilidad
+  useEffect(() => {
+    const checkStatus = async () => {
+      try {
+        const now = new Date();
+        const rsvpDeadline = new Date(theme.dates.rsvpDeadline);
+        const isActive = now <= rsvpDeadline;
+        setIsRsvpActive(isActive);
+        
+        if (isActive && theme.tickets.lotes.enabled) {
+          await checkAllTicketsAvailability();
+        }
+      } catch (error) {
+        console.error('Error en checkStatus:', error);
+      }
     };
 
-    // Verificar inmediatamente al cargar
-    checkRsvpStatus();
+    // Verificar inmediatamente
+    checkStatus();
 
-    // Verificar cada 30 minutos
-    const interval = setInterval(checkRsvpStatus, 30 * 60 * 1000);
+    const intervalId = setInterval(checkStatus, 30 * 60 * 1000);
 
-    // Limpiar intervalo al desmontar
-    return () => clearInterval(interval);
-  }, []);
+    return () => {
+      if (intervalId) clearInterval(intervalId);
+    };
+  }, [checkAllTicketsAvailability]);
 
   // Función para verificar si la fecha está vencida (en tiempo real)
   const isDeadlinePassed = () => {
@@ -295,18 +319,31 @@ export function InvitacionDigitalComponent() {
     return now > rsvpDeadline;
   };
 
-  // Manejar el click del botón de tickets
-  const handleTicketButtonClick = () => {
-    console.log('Botón de tickets clickeado');
-    
-    if (isDeadlinePassed()) {
-      console.log('Fecha límite vencida - Mostrando modal de expiración');
-      setShowExpirationModal(true);
-    } else {
-      console.log('Fecha límite vigente - Abriendo modal de compra');
+  // Función para manejar el click en el botón de tickets
+  const handleTicketButtonClick = useCallback(async () => {
+    try {
+      if (theme.tickets.lotes.enabled) {
+        await checkAllTicketsAvailability();
+        
+        const hasAvailableTickets = Object.values(ticketAvailability).some(
+          remaining => remaining === -1 || remaining > 0
+        );
+
+        if (!hasAvailableTickets) {
+          toast.error(theme.tickets.lotes.soldOutMessage);
+          if (theme.tickets.lotes.nextLotMessage) {
+            toast.info(theme.tickets.lotes.nextLotMessage);
+          }
+          return;
+        }
+      }
+
       setShowTicketsModal(true);
+    } catch (error) {
+      console.error('Error al verificar tickets:', error);
+      toast.error('Error al verificar disponibilidad de tickets');
     }
-  };
+  }, [ticketAvailability]);
 
   //Comienzo la invitacion digital
   return (
@@ -530,14 +567,32 @@ export function InvitacionDigitalComponent() {
                 </DialogContent>
               </Dialog>
 
-              <Button
-                variant="primary"
-                className="col-span-2 flex items-center justify-center"
-                onClick={handleTicketButtonClick}
-              >
-                <Ticket className="mr-2 h-4 w-4" />
-                Comprar Tickets
-              </Button>
+              <div className="col-span-2 space-y-2">
+                <Button
+                  variant="primary"
+                  className="w-full flex items-center justify-center"
+                  onClick={handleTicketButtonClick}
+                  disabled={theme.tickets.lotes.enabled && Object.values(ticketAvailability).every(
+                    remaining => remaining !== -1 && remaining <= 0
+                  )}
+                >
+                  <Ticket className="mr-2 h-4 w-4" />
+                  {theme.tickets.lotes.enabled && Object.values(ticketAvailability).every(
+                    remaining => remaining !== -1 && remaining <= 0
+                  )
+                    ? theme.tickets.lotes.soldOutMessage
+                    : 'Comprar Tickets'
+                  }
+                </Button>
+                
+                {theme.tickets.lotes.enabled && 
+                 Object.values(ticketAvailability).every(remaining => remaining !== -1 && remaining <= 0) && 
+                 theme.tickets.lotes.nextLotMessage && (
+                  <p className="body-small-alt text-center text-opacity-90">
+                    {theme.tickets.lotes.nextLotMessage}
+                  </p>
+                )}
+              </div>
 
               <Dialog 
                 open={showTicketsModal} 
