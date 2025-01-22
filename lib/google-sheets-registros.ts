@@ -101,13 +101,7 @@ function generateQRFormula(rowNumber: number): string {
 
 export async function registrarTickets(nombre: string, email: string, tipoTicket: string, cantidad: number) {
   try {
-    // Verificar disponibilidad antes de registrar
-    const availability = await checkTicketAvailability(tipoTicket, cantidad);
-    
-    if (!availability.available) {
-      throw new Error(`No hay suficientes tickets disponibles. Quedan: ${availability.remainingTickets}`);
-    }
-
+    // Remover la verificación de disponibilidad aquí ya que se hace en el frontend
     const jwt = new JWT({
       email: process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
       key: process.env.GOOGLE_PRIVATE_KEY?.split(String.raw`\n`).join('\n'),
@@ -121,15 +115,6 @@ export async function registrarTickets(nombre: string, email: string, tipoTicket
     if (!sheet) {
       throw new Error('No se encontró la hoja "Invitados"');
     }
-
-    // Agregar logs para debug
-    console.log('Intentando registrar tickets:', {
-      nombre,
-      email,
-      tipoTicket,
-      cantidad,
-      availability
-    });
 
     // Obtener el número total de filas actual
     const rows = await sheet.getRows();
@@ -159,7 +144,7 @@ export async function registrarTickets(nombre: string, email: string, tipoTicket
         'ID': uniqueId,
         'Invitado': nombre.trim(),
         'Email': email.toLowerCase().trim(),
-        'Ticket': tipoTicket.split('(')[0].trim(), // Eliminar el precio entre paréntesis si existe
+        'Ticket': tipoTicket.split('(')[0].trim(),
         'QRimg': qrFormula
       });
     }
