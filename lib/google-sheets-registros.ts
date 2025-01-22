@@ -122,6 +122,15 @@ export async function registrarTickets(nombre: string, email: string, tipoTicket
       throw new Error('No se encontró la hoja "Invitados"');
     }
 
+    // Agregar logs para debug
+    console.log('Intentando registrar tickets:', {
+      nombre,
+      email,
+      tipoTicket,
+      cantidad,
+      availability
+    });
+
     // Obtener el número total de filas actual
     const rows = await sheet.getRows();
     const startingRowNumber = rows.length + 2;
