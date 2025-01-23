@@ -1,11 +1,13 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { StyledDialog } from "@/components/ui/styled-dialog"
-import { Ticket, Plus, Minus } from 'lucide-react'
+import { Ticket, Plus, Minus, AlertCircle } from 'lucide-react'
 import { toast } from 'sonner'
+import { checkTicketAvailability } from '@/lib/google-sheets-registros'
+import { theme } from '@/config/theme'
 
 interface TicketType {
   id: string
@@ -32,6 +34,8 @@ const ticketTypes: TicketType[] = [
 export function TicketsModal({ onClose }: { onClose: () => void }) {
   const [selectedTicket, setSelectedTicket] = useState<string>('Regular')
   const [quantity, setQuantity] = useState<number>(1)
+  const [remainingTickets, setRemainingTickets] = useState<number | null>(null)
+  const [isLoadingAvailability, setIsLoadingAvailability] = useState(true)
   const [buyerInfo, setBuyerInfo] = useState({
     name: '',
     email: ''
@@ -40,6 +44,33 @@ export function TicketsModal({ onClose }: { onClose: () => void }) {
 
   const selectedTicketType = ticketTypes.find(t => t.id === selectedTicket)
   const total = (selectedTicketType?.price || 0) * quantity
+
+  useEffect(() => {
+    const checkAvailability = async () => {
+      setIsLoadingAvailability(true);
+      try {
+        const result = await checkTicketAvailability(selectedTicket, 1);
+        setRemainingTickets(result.remainingTickets);
+        if (result.remainingTickets !== -1 && quantity > result.remainingTickets) {
+          setQuantity(result.remainingTickets);
+        }
+      } catch (error) {
+        console.error('Error al verificar disponibilidad:', error);
+        toast.error('Error al verificar disponibilidad');
+      } finally {
+        setIsLoadingAvailability(false);
+      }
+    };
+
+    checkAvailability();
+  }, [selectedTicket]);
+
+  const validateQuantity = (newQuantity: number) => {
+    if (remainingTickets !== null && remainingTickets !== -1) {
+      return Math.min(newQuantity, remainingTickets);
+    }
+    return newQuantity;
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -105,33 +136,43 @@ export function TicketsModal({ onClose }: { onClose: () => void }) {
 
       <div className="space-y-2">
         <label className="text-sm font-medium">Cantidad</label>
+        {remainingTickets !== null && remainingTickets <= 10 && remainingTickets > 0 && (
+          <div className="flex items-center gap-2 text-yellow-500 mb-2">
+            <AlertCircle className="h-4 w-4" />
+            <span className="text-sm">¡Quedan solo {remainingTickets} tickets disponibles!</span>
+          </div>
+        )}
         <div className="flex items-center gap-2">
           <Input
             type="number"
             min="1"
+            max={remainingTickets !== null && remainingTickets !== -1 ? remainingTickets : undefined}
             value={quantity}
             onChange={(e) => {
-              const value = parseInt(e.target.value)
+              const value = parseInt(e.target.value);
               if (!isNaN(value) && value >= 1) {
-                setQuantity(value)
+                setQuantity(validateQuantity(value));
               }
             }}
             className="text-center"
+            disabled={isLoadingAvailability}
           />
           <div className="flex">
             <Button
               type="button"
               variant="primary"
-              onClick={() => setQuantity(prev => Math.max(1, prev - 1))}
+              onClick={() => setQuantity(prev => validateQuantity(Math.max(1, prev - 1)))}
               className="h-10 w-10 flex items-center justify-center rounded-r-none p-0"
+              disabled={quantity <= 1 || isLoadingAvailability}
             >
               <Minus className="h-4 w-4" />
             </Button>
             <Button
               type="button"
               variant="primary"
-              onClick={() => setQuantity(prev => prev + 1)}
+              onClick={() => setQuantity(prev => validateQuantity(prev + 1))}
               className="h-10 w-10 flex items-center justify-center rounded-l-none border-l border-white/20 p-0"
+              disabled={remainingTickets !== null && remainingTickets !== -1 && quantity >= remainingTickets || isLoadingAvailability}
             >
               <Plus className="h-4 w-4" />
             </Button>

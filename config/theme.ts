@@ -71,8 +71,8 @@ export const theme = {
   tickets: {
     lotes: {
       enabled: true, // habilitar/deshabilitar sistema de lotes
-      maxTicketsPerLot: 131, // 0 para ventas ilimitadas
-      currentLot: 1, // número de lote actual
+      maxTicketsPerLot: 139, // 0 para ventas ilimitadas
+      currentLot: 2, // número de lote actual
       soldOutMessage: "Lote agotado", // mensaje cuando se agota el lote actual
       nextLotMessage: "El 15/03 se habilitan 100 tickets", // mensaje informativo sobre próximo lote
     },
@@ -80,13 +80,12 @@ export const theme = {
       {
         id: 'vip',
         name: 'Vip',
-        maxPerLot: 0, // 0 para sin límite específico para este tipo
-        soldOutMessage: "Early Bird agotado", // mensaje específico por tipo
+        maxPerLot: 115, // 0 para sin límite específico para este tipo
       },
       {
         id: 'regular',
         name: 'Regular',
-        maxPerLot: 0, // sin límite específico
+        maxPerLot: 25, // sin límite específico
       }
     ]
   },

@@ -111,6 +111,7 @@ export function InvitacionDigitalComponent() {
   const [showTicketsModal, setShowTicketsModal] = useState(false);
   const [isRsvpActive, setIsRsvpActive] = useState(true);
   const [ticketAvailability, setTicketAvailability] = useState<{[key: string]: number}>({})
+  const [isCheckingAvailability, setIsCheckingAvailability] = useState(true);
 
   const eventDate = useMemo(() => new Date(theme.dates.event), []);
   const contentActivationDate = new Date(theme.dates.contentActivation);
@@ -292,20 +293,18 @@ export function InvitacionDigitalComponent() {
         if (isActive && theme.tickets.lotes.enabled) {
           await checkAllTicketsAvailability();
         }
+        setIsCheckingAvailability(false);
       } catch (error) {
         console.error('Error en checkStatus:', error);
+        setIsCheckingAvailability(false);
       }
     };
 
     // Verificar inmediatamente
     checkStatus();
-
     const intervalId = setInterval(checkStatus, 30 * 60 * 1000);
-
-    return () => {
-      if (intervalId) clearInterval(intervalId);
-    };
-  }, [checkAllTicketsAvailability]);
+    return () => clearInterval(intervalId);
+  }, []);
 
   // Función para verificar si la fecha está vencida (en tiempo real)
   const isDeadlinePassed = () => {
@@ -568,24 +567,36 @@ export function InvitacionDigitalComponent() {
               </Dialog>
 
               <div className="col-span-2 space-y-2">
-                <Button
-                  variant="primary"
-                  className="w-full flex items-center justify-center"
-                  onClick={handleTicketButtonClick}
-                  disabled={theme.tickets.lotes.enabled && Object.values(ticketAvailability).every(
-                    remaining => remaining !== -1 && remaining <= 0
-                  )}
-                >
-                  <Ticket className="mr-2 h-4 w-4" />
-                  {theme.tickets.lotes.enabled && Object.values(ticketAvailability).every(
-                    remaining => remaining !== -1 && remaining <= 0
-                  )
-                    ? theme.tickets.lotes.soldOutMessage
-                    : 'Comprar Tickets'
-                  }
-                </Button>
+                {theme.tickets.lotes.enabled && isCheckingAvailability ? (
+                  <Button
+                    variant="primary"
+                    className="w-full flex items-center justify-center"
+                    disabled
+                  >
+                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
+                    Verificando disponibilidad...
+                  </Button>
+                ) : (
+                  <Button
+                    variant="primary"
+                    className="w-full flex items-center justify-center"
+                    onClick={handleTicketButtonClick}
+                    disabled={theme.tickets.lotes.enabled && Object.values(ticketAvailability).every(
+                      remaining => remaining !== -1 && remaining <= 0
+                    )}
+                  >
+                    <Ticket className="mr-2 h-4 w-4" />
+                    {theme.tickets.lotes.enabled && Object.values(ticketAvailability).every(
+                      remaining => remaining !== -1 && remaining <= 0
+                    )
+                      ? theme.tickets.lotes.soldOutMessage
+                      : 'Comprar Tickets'
+                    }
+                  </Button>
+                )}
                 
-                {theme.tickets.lotes.enabled && 
+                {!isCheckingAvailability && 
+                 theme.tickets.lotes.enabled && 
                  Object.values(ticketAvailability).every(remaining => remaining !== -1 && remaining <= 0) && 
                  theme.tickets.lotes.nextLotMessage && (
                   <p className="body-small-alt text-center text-opacity-90">
