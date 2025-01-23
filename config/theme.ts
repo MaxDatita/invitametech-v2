@@ -51,10 +51,10 @@ export const theme = {
 
   // Configuración de fechas importantes
   dates: {
-    event: '2025-02-15T10:30:00', // Fecha del evento
+    event: '2024-02-15T10:30:00', // Fecha del evento
     contentActivation: '2024-10-01T00:00:00', // Fecha de activación del contenido
-    rsvpDeadline: '2025-11-29T00:00:00', // Fecha límite para venta de tickets
-    liveEnd: '2024-12-30T23:59:59', // Fecha en que desaparece el indicador LIVE
+    rsvpDeadline: '2024-11-29T00:00:00', // Fecha límite para venta de tickets
+    liveEnd: '2025-12-30T23:59:59', // Fecha en que desaparece el indicador LIVE
   },
 
   // Enlaces y recursos
@@ -70,7 +70,7 @@ export const theme = {
   // Configuración de tickets
   tickets: {
     lotes: {
-      enabled: true, // habilitar/deshabilitar sistema de lotes
+      enabled: false, // habilitar/deshabilitar sistema de lotes
       maxTicketsPerLot: 139, // 0 para ventas ilimitadas
       currentLot: 2, // número de lote actual
       soldOutMessage: "Lote agotado", // mensaje cuando se agota el lote actual
