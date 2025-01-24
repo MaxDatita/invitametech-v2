@@ -537,7 +537,7 @@ export function InvitacionDigitalComponent() {
                   </>
                 ) : (
                   // DINAMICO:  Frase antes de fecha de activación.
-                  <p>Podrás dejar mensajes para el agasajado más cerca de la fecha del evento.</p>
+                  <p>Podrás dejar mensajes que se mostrarán en el evento mas cerca de la fecha del inicio del mismo.</p>
                 )}
               </form>
             </DialogContent>
