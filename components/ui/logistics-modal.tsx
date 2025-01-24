@@ -19,7 +19,7 @@ interface LogisticsData {
 }
 
 const defaultLogisticsData: LogisticsData = {
-  googleMapsUrl: "https://maps.google.com/...", // Tu URL de Google Maps
+  googleMapsUrl: "https://maps.app.goo.gl/6GKZKzyWFRGa2bj19", // Tu URL de Google Maps
   venueMapUrl: "/map-event.webp", // La ruta a tu imagen del mapa del venue
   schedule: [
     { time: "20:00", activity: "Apertura de puertas" },
