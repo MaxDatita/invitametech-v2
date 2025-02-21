@@ -51,8 +51,8 @@ export const theme = {
 
   // Configuración de fechas importantes
   dates: {
-    event: '2025-02-15T10:30:00', // Fecha del evento
-    contentActivation: '2025-02-01T00:00:00', // Fecha de activación del contenido
+    event: '2025-05-15T10:30:00', // Fecha del evento
+    contentActivation: '2025-05-10T00:00:00', // Fecha de activación del contenido
     rsvpDeadline: '2025-11-29T00:00:00', // Fecha límite para venta de tickets
     liveEnd: '2025-12-30T23:59:59', // Fecha en que desaparece el indicador LIVE
   },
