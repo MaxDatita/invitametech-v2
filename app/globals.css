@@ -2,7 +2,8 @@
 @tailwind components;
 @tailwind utilities;
 
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Roboto:wght@400;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700&display=swap');
 
 @layer base {
   body {
@@ -15,7 +16,7 @@
   }
 
   .font-secondary {
-    font-family: 'Playfair Display', serif;
+    font-family: 'Syne', sans-serif;
   }
 }
 
@@ -23,14 +24,11 @@
   /* Gradiente de fondo */
   .bg-gradient-animation {
     @apply min-h-screen;
-    background-color: hsla(359.00000000000006, 100%, 50%, 1);
-    background-image: 
-      radial-gradient(circle at 0% 99%, hsla(255.44117647058818, 76%, 15%, 1) 0%, transparent 67%), 
-      radial-gradient(circle at 46% 94%, hsla(240.88235294117646, 79%, 27%, 1) 0%, transparent 81%), 
-      radial-gradient(circle at 93% 95%, hsla(231.61764705882354, 100%, 23%, 1) 0%, transparent 66%), 
-      radial-gradient(circle at 89% 8%, hsla(206, 100%, 9%, 1) 0%, transparent 150%), 
-      radial-gradient(circle at 89% 8%, hsla(206, 100%, 9%, 1) 0%, transparent 150%);
-    background-blend-mode: normal, normal, normal, normal, normal;
+    background: linear-gradient(140deg, 
+      #000000 0%,      /* Color1 */
+      #471069 55%,     /* Color2 */
+      #196E76 100%     /* Color3 */
+    );
   }
 
   .animate-bounce {

@@ -47,19 +47,9 @@ export default function MensajesPage() {
   return (
     <div className="min-h-screen bg-gradient-animation flex flex-col items-center justify-center p-8">
       <div className="w-full max-w-4xl mx-auto">
-        {/* Logo */}
-        <div className="mb-8 flex justify-center">
-          <Image
-            src="/logo-fondo-oscuro.png"
-            alt="Eventechy"
-            width={200}
-            height={71}
-            className="rounded-lg eventechy-logo"
-          />
-        </div>
-
+       
         {/* Título */}
-        <h1 className="heading-h1 text-center mb-8">
+        <h1 className="heading-h2 text-center mb-8  text-cyan-200">
           Mensajes de los invitados
         </h1>
 
@@ -94,6 +84,17 @@ export default function MensajesPage() {
             />
           ))}
         </div>
+         {/* Logo */}
+         <div className="mt-8 flex justify-center">
+          <Image
+            src="/logo-fondo-oscuro.png"
+            alt="Eventechy"
+            width={200}
+            height={71}
+            className="rounded-lg eventechy-logo"
+          />
+        </div>
+
       </div>
     </div>
   );

@@ -396,7 +396,7 @@ export function InvitacionDigitalComponent() {
         </div>
 
         <p className="heading-h2 mt-4 mb-4">
-          {eventStarted ? 'El evento ya comenzó, disfrutá la fiesta!' : 'Te invitamos a pasar una noche unica'}
+          {eventStarted ? 'El evento ya comenzó, disfrutá la fiesta!' : <span>Te invitamos a vivir una noche inolvidable! 🎉 <br /> No te lo puedes perder 🔊🎶🥂</span>}
         </p>
 
         {eventStarted ? (
