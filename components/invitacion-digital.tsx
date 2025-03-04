@@ -346,339 +346,342 @@ export function InvitacionDigitalComponent() {
 
   //Comienzo la invitacion digital
   return (
-    <div className="min-h-screen pt-6 pb-6 pl-6 pr-6 bg-gradient-animation">
-      {eventStarted && showLive && (
-        <div className="live-indicator">
-          <div className="live-dot"></div>
-          <span className="text-sm font-bold">LIVE</span>
-        </div>
-      )}
-      
-      <div className="w-full max-w-md mx-auto rounded-xl">
-        <video
-          className="w-full h-64 object-cover rounded-lg shadow-lg mb-4 rounded-xl"
-          autoPlay
-          loop
-          muted
-          playsInline
-        >
-          <source src={theme.resources.images.video} type="video/mp4" />
-          Tu navegador no soporta el tag de video.
-        </video>
+    <>
+      <div className="bg-gradient-animation" />
+      <div className="content-container">
+        {eventStarted && showLive && (
+          <div className="live-indicator">
+            <div className="live-dot"></div>
+            <span className="text-sm font-bold">LIVE</span>
+          </div>
+        )}
+        
+        <div className="w-full max-w-md mx-auto rounded-xl">
+          <video
+            className="w-full h-64 object-cover rounded-lg shadow-lg mb-4 rounded-xl"
+            autoPlay
+            loop
+            muted
+            playsInline
+          >
+            <source src={theme.resources.images.video} type="video/mp4" />
+            Tu navegador no soporta el tag de video.
+          </video>
 
-        <div className="title-image-container">
-          <Image
-            src={theme.resources.images.title}
-            alt="Eventest"
-            width={300}
-            height={100}
-            className="title-image"
-            priority
-          />
-        </div>
-
-        {/* <h1 className="heading-h1">
-          Celebremos Juntos
-        </h1> */}
-
-        <div className="relative w-full h-[50vh] mb-4 rounded-xl overflow-hidden">
-          {theme.resources.images.carousel.map((src, index) => (
+          <div className="title-image-container">
             <Image
-              key={index}
-              src={src}
-              alt={`Imagen de celebración ${index + 1}`}
-              fill
-              className={`object-cover rounded-lg shadow-lg transition-opacity duration-500 ${
-                index === currentSlide ? 'opacity-100' : 'opacity-0'
-              }`}
+              src={theme.resources.images.title}
+              alt="Eventest"
+              width={300}
+              height={100}
+              className="title-image"
+              priority
             />
-          ))}
-        </div>
+          </div>
 
-        <p className="heading-h2 mt-4 mb-4">
-          {eventStarted ? 'El evento ya comenzó, disfrutá la fiesta!' : <span>Te invitamos a vivir una noche inolvidable! 🎉 <br /> No te lo puedes perder 🔊🎶🥂</span>}
-        </p>
+          {/* <h1 className="heading-h1">
+            Celebremos Juntos
+          </h1> */}
 
-        {eventStarted ? (
-          <div className="mb-6">
-            {carouselQuery.isLoading ? (
-              <div className="flex justify-center">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-700" />
-              </div>
-            ) : carouselQuery.error ? (
-              <p className='text-center mt-12 mb-12'>Error al cargar mensajes</p>
-            ) : carouselMessages.length === 0 ? (
-              <p className='text-center mt-12 mb-12'>Sé el primero en dejar un mensaje</p>
-            ) : (
-              <>
-                <div ref={carouselRef} className="overflow-x-hidden whitespace-nowrap">
-                  <div className="inline-flex gap-4" style={{ width: `${carouselMessages.length * 272 * 2}px` }}>
-                    {carouselMessages.map((message: CarouselMessage) => (
-                      <MessageCard key={message.id} message={message} onClick={() => handleMessageClick(message)} />
-                    ))}
-                    {carouselMessages.map((message: CarouselMessage) => (
-                      <MessageCard key={`duplicate-${message.id}`} message={message} onClick={() => handleMessageClick(message)} />
-                    ))}
-                  </div>
+          <div className="relative w-full h-[50vh] mb-4 rounded-xl overflow-hidden">
+            {theme.resources.images.carousel.map((src, index) => (
+              <Image
+                key={index}
+                src={src}
+                alt={`Imagen de celebración ${index + 1}`}
+                fill
+                className={`object-cover rounded-lg shadow-lg transition-opacity duration-500 ${
+                  index === currentSlide ? 'opacity-100' : 'opacity-0'
+                }`}
+              />
+            ))}
+          </div>
+
+          <p className="heading-h2 mt-4 mb-4">
+            {eventStarted ? 'El evento ya comenzó, disfrutá la fiesta!' : <span>Te invitamos a vivir una noche inolvidable! 🎉 <br /> No te lo puedes perder 🔊🎶🥂</span>}
+          </p>
+
+          {eventStarted ? (
+            <div className="mb-6">
+              {carouselQuery.isLoading ? (
+                <div className="flex justify-center">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-700" />
                 </div>
+              ) : carouselQuery.error ? (
+                <p className='text-center mt-12 mb-12'>Error al cargar mensajes</p>
+              ) : carouselMessages.length === 0 ? (
+                <p className='text-center mt-12 mb-12'>Sé el primero en dejar un mensaje</p>
+              ) : (
+                <>
+                  <div ref={carouselRef} className="overflow-x-hidden whitespace-nowrap">
+                    <div className="inline-flex gap-4" style={{ width: `${carouselMessages.length * 272 * 2}px` }}>
+                      {carouselMessages.map((message: CarouselMessage) => (
+                        <MessageCard key={message.id} message={message} onClick={() => handleMessageClick(message)} />
+                      ))}
+                      {carouselMessages.map((message: CarouselMessage) => (
+                        <MessageCard key={`duplicate-${message.id}`} message={message} onClick={() => handleMessageClick(message)} />
+                      ))}
+                    </div>
+                  </div>
+                  <Button 
+                    variant="primary" 
+                    className="flex mt-4 w-full items-center justify-center" 
+                    onClick={() => setSelectedMessage({ 
+                      nombre: 'Todos los mensajes', 
+                      mensaje: '' 
+                    })}
+                  >
+                    <MailPlus className="mr-2 h-4 w-4"/> Ver todos los mensajes
+                  </Button>
+                </>
+              )}
+            </div>
+          ) : (
+            <div>
+              <div className='countdown-message'>
+                Te esperamos este {eventDate.toLocaleDateString('es-ES', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}  
+                , {eventDate.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit', hour12: false })}hs para pasar una noche inolvidable.
+              </div>
+              <div className='body-base text-center mb-2'> Faltan: </div>
+              <div className="countdown-container">
+                <div className="countdown-item">
+                  <span className="countdown-number">{countdown.days}</span>
+                  <p className="countdown-label">Días</p>
+                </div>
+                <div className="countdown-item">
+                  <span className="countdown-number">{countdown.hours}</span>
+                  <p className="countdown-label">Horas</p>
+                </div>
+                <div className="countdown-item">
+                  <span className="countdown-number">{countdown.minutes}</span>
+                  <p className="countdown-label">Minutos</p>
+                </div>
+                <div className="countdown-item">
+                  <span className="countdown-number">{countdown.seconds}</span>
+                  <p className="countdown-label">Segundos</p>
+                </div>
+              </div>
+            </div>
+          )}
+
+          <div className="grid grid-cols-2 gap-4">
+            <LogisticsModal />
+            <MenuModal />
+            <StyledDialog 
+              title="Contenido del Evento"
+              trigger={
                 <Button 
                   variant="primary" 
-                  className="flex mt-4 w-full items-center justify-center" 
-                  onClick={() => setSelectedMessage({ 
-                    nombre: 'Todos los mensajes', 
-                    mensaje: '' 
-                  })}
+                  className="flex items-center justify-center"
                 >
-                  <MailPlus className="mr-2 h-4 w-4"/> Ver todos los mensajes
+                  <ImageIcon className="mr-2 h-4 w-4" /> Contenido
                 </Button>
+              }
+            >
+              <div className="grid gap-4">
+                {isContentActive ? (
+                  <div className="flex flex-col items-center gap-4">
+                    <p className="text-center">
+                      Mirá todo el contenido multimedia del evento en un solo lugar. Fotos, videos, reels para Instagram y mucho más 🤳🏼📸😉
+                    </p>
+                    <Button
+                      variant="primary"
+                      className="w-full button-with-icon"
+                      onClick={() => window.open(theme.resources.contentLink, "_blank")}
+                    >
+                      <ImageIcon className="button-icon" />
+                      <span>Acceder al contenido</span>
+                    </Button>
+                  </div>
+                ) : (
+                  <p>El contenido del evento estará disponible más cerca de la fecha del evento. Quedá atento a las actualizaciones ⏳.</p>
+                )}
+              </div>
+            </StyledDialog>
+            <Dialog open={isMessageDialogOpen} onOpenChange={setIsMessageDialogOpen}>
+              <DialogTrigger asChild>
+                <Button variant="primary" className="flex items-center justify-center">
+                  <MessageSquare className="mr-2 h-4 w-4" /> Mensajes
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="sm:max-w-[425px]">
+                <DialogHeader>
+                  <DialogTitle>Deja un mensaje</DialogTitle>
+                </DialogHeader>
+                <form onSubmit={handleSubmitMessage} className="grid gap-4 py-4">
+                  {isContentActive ? (
+                    <>
+                      <Input 
+                        id="name" 
+                        placeholder="Tu nombre" 
+                        value={newMessage.nombre}
+                        onChange={(e) => setNewMessage(prev => ({
+                          ...prev,
+                          nombre: e.target.value
+                        }))}
+                        required
+                      />
+                      <Textarea 
+                        placeholder="Tu mensaje" 
+                        value={newMessage.mensaje}
+                        onChange={(e) => setNewMessage(prev => ({
+                          ...prev,
+                          mensaje: e.target.value
+                        }))}
+                        required
+                      />
+                      <Button 
+                        type="submit" 
+                        disabled={isSubmitting}
+                      >
+                        {isSubmitting ? 'Enviando...' : 'Enviar mensaje'}
+                      </Button>
+                    </>
+                  ) : (
+                    // DINAMICO:  Frase antes de fecha de activación.
+                    <p>Podrás dejar mensajes que se mostrarán en el evento más cerca de la fecha de inicio del mismo.</p>
+                  )}
+                </form>
+              </DialogContent>
+            </Dialog>
+            {isRsvpActive && (
+              <>
+                <Dialog open={showExpirationModal} onOpenChange={setShowExpirationModal}>
+                  <DialogContent className="sm:max-w-[425px]">
+                    <DialogHeader>
+                      <DialogTitle>Venta de Tickets Finalizada</DialogTitle>
+                    </DialogHeader>
+                    <Card className="border-none bg-transparent border-0">
+                      <div className="auth-card-content">
+                        <p className="auth-card-text">
+                          Lo sentimos, el tiempo para comprar tickets ha finalizado.
+                        </p>
+                        <Button 
+                          variant="primary" 
+                          className="w-full"
+                          onClick={() => setShowExpirationModal(false)}
+                        >
+                          Entendido
+                        </Button>
+                      </div>
+                    </Card>
+                  </DialogContent>
+                </Dialog>
+
+                <div className="col-span-2 space-y-2">
+                  {theme.tickets.lotes.enabled && isCheckingAvailability ? (
+                    <Button
+                      variant="primary"
+                      className="w-full flex items-center justify-center"
+                      disabled
+                    >
+                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
+                      Verificando disponibilidad...
+                    </Button>
+                  ) : (
+                    <Button
+                      variant="primary"
+                      className="w-full flex items-center justify-center"
+                      onClick={handleTicketButtonClick}
+                      disabled={theme.tickets.lotes.enabled && Object.values(ticketAvailability).every(
+                        remaining => remaining !== -1 && remaining <= 0
+                      )}
+                    >
+                      <Ticket className="mr-2 h-4 w-4" />
+                      {theme.tickets.lotes.enabled && Object.values(ticketAvailability).every(
+                        remaining => remaining !== -1 && remaining <= 0
+                      )
+                        ? theme.tickets.lotes.soldOutMessage
+                        : 'Comprar Tickets'
+                      }
+                    </Button>
+                  )}
+                  
+                  {!isCheckingAvailability && 
+                   theme.tickets.lotes.enabled && 
+                   Object.values(ticketAvailability).every(remaining => remaining !== -1 && remaining <= 0) && 
+                   theme.tickets.lotes.nextLotMessage && (
+                    <p className="body-small-alt text-center text-opacity-90">
+                      {theme.tickets.lotes.nextLotMessage}
+                    </p>
+                  )}
+                </div>
+
+                <Dialog 
+                  open={showTicketsModal} 
+                  onOpenChange={setShowTicketsModal}
+                >
+                  <DialogContent className="sm:max-w-[425px]">
+                    <DialogHeader>
+                      <DialogTitle>Comprar Tickets</DialogTitle>
+                    </DialogHeader>
+                    <TicketsModal onClose={() => setShowTicketsModal(false)} />
+                  </DialogContent>
+                </Dialog>
               </>
             )}
           </div>
-        ) : (
-          <div>
-            <div className='countdown-message'>
-              Te esperamos este {eventDate.toLocaleDateString('es-ES', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}  
-              , {eventDate.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit', hour12: false })}hs para pasar una noche inolvidable.
-            </div>
-            <div className='body-base text-center mb-2'> Faltan: </div>
-            <div className="countdown-container">
-              <div className="countdown-item">
-                <span className="countdown-number">{countdown.days}</span>
-                <p className="countdown-label">Días</p>
-              </div>
-              <div className="countdown-item">
-                <span className="countdown-number">{countdown.hours}</span>
-                <p className="countdown-label">Horas</p>
-              </div>
-              <div className="countdown-item">
-                <span className="countdown-number">{countdown.minutes}</span>
-                <p className="countdown-label">Minutos</p>
-              </div>
-              <div className="countdown-item">
-                <span className="countdown-number">{countdown.seconds}</span>
-                <p className="countdown-label">Segundos</p>
-              </div>
-            </div>
-          </div>
-        )}
+        </div>
 
-        <div className="grid grid-cols-2 gap-4">
-          <LogisticsModal />
-          <MenuModal />
-          <StyledDialog 
-            title="Contenido del Evento"
-            trigger={
-              <Button 
-                variant="primary" 
-                className="flex items-center justify-center"
-              >
-                <ImageIcon className="mr-2 h-4 w-4" /> Contenido
-              </Button>
-            }
-          >
-            <div className="grid gap-4">
-              {isContentActive ? (
-                <div className="flex flex-col items-center gap-4">
-                  <p className="text-center">
-                    Mirá todo el contenido multimedia del evento en un solo lugar. Fotos, videos, reels para Instagram y mucho más 🤳🏼📸😉
-                  </p>
-                  <Button
-                    variant="primary"
-                    className="w-full button-with-icon"
-                    onClick={() => window.open(theme.resources.contentLink, "_blank")}
-                  >
-                    <ImageIcon className="button-icon" />
-                    <span>Acceder al contenido</span>
-                  </Button>
+        <Dialog open={!!selectedMessage} onOpenChange={() => setSelectedMessage(null)}>
+          <DialogContent className="sm:max-w-[425px]">
+            <DialogHeader>
+              <DialogTitle className="flex items-center">
+                {selectedMessage?.nombre && selectedMessage.nombre !== 'Todos los mensajes' && (
+                  <InitialsCircle name={selectedMessage.nombre} />
+                )}
+                {selectedMessage?.nombre || 'Mensaje'}
+              </DialogTitle>
+            </DialogHeader>
+            <div className="py-4">
+              {selectedMessage?.nombre === 'Todos los mensajes' ? (
+                <div className="space-y-4 max-h-[60vh] overflow-y-auto">
+                  {allMessages.map((message) => (
+                    <div key={message.id} className="flex items-start p-2 bg-white rounded-lg shadow">
+                      <div className="flex-shrink-0">
+                        <InitialsCircle name={message.nombre} />
+                      </div>
+                      <div className="ml-3 flex-grow">
+                        <h3 className="font-semibold">{message.nombre}</h3>
+                        <p className="text-sm whitespace-normal break-words">{message.mensaje}</p>
+                      </div>
+                    </div>
+                  ))}
+                  {hasNextPage && (
+                    <Button 
+                      onClick={() => fetchNextPage()} 
+                      variant="primary" 
+                      className="w-full mt-4"
+                      disabled={isFetchingNextPage}
+                    >
+                      {isFetchingNextPage ? 'Cargando más mensajes...' : 'Ver más mensajes'}
+                    </Button>
+                  )}
                 </div>
               ) : (
-                <p>El contenido del evento estará disponible más cerca de la fecha del evento. Quedá atento a las actualizaciones ⏳.</p>
+                <p>{selectedMessage?.mensaje}</p>
               )}
             </div>
-          </StyledDialog>
-          <Dialog open={isMessageDialogOpen} onOpenChange={setIsMessageDialogOpen}>
-            <DialogTrigger asChild>
-              <Button variant="primary" className="flex items-center justify-center">
-                <MessageSquare className="mr-2 h-4 w-4" /> Mensajes
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="sm:max-w-[425px]">
-              <DialogHeader>
-                <DialogTitle>Deja un mensaje</DialogTitle>
-              </DialogHeader>
-              <form onSubmit={handleSubmitMessage} className="grid gap-4 py-4">
-                {isContentActive ? (
-                  <>
-                    <Input 
-                      id="name" 
-                      placeholder="Tu nombre" 
-                      value={newMessage.nombre}
-                      onChange={(e) => setNewMessage(prev => ({
-                        ...prev,
-                        nombre: e.target.value
-                      }))}
-                      required
-                    />
-                    <Textarea 
-                      placeholder="Tu mensaje" 
-                      value={newMessage.mensaje}
-                      onChange={(e) => setNewMessage(prev => ({
-                        ...prev,
-                        mensaje: e.target.value
-                      }))}
-                      required
-                    />
-                    <Button 
-                      type="submit" 
-                      disabled={isSubmitting}
-                    >
-                      {isSubmitting ? 'Enviando...' : 'Enviar mensaje'}
-                    </Button>
-                  </>
-                ) : (
-                  // DINAMICO:  Frase antes de fecha de activación.
-                  <p>Podrás dejar mensajes que se mostrarán en el evento más cerca de la fecha de inicio del mismo.</p>
-                )}
-              </form>
-            </DialogContent>
-          </Dialog>
-          {isRsvpActive && (
-            <>
-              <Dialog open={showExpirationModal} onOpenChange={setShowExpirationModal}>
-                <DialogContent className="sm:max-w-[425px]">
-                  <DialogHeader>
-                    <DialogTitle>Venta de Tickets Finalizada</DialogTitle>
-                  </DialogHeader>
-                  <Card className="border-none bg-transparent border-0">
-                    <div className="auth-card-content">
-                      <p className="auth-card-text">
-                        Lo sentimos, el tiempo para comprar tickets ha finalizado.
-                      </p>
-                      <Button 
-                        variant="primary" 
-                        className="w-full"
-                        onClick={() => setShowExpirationModal(false)}
-                      >
-                        Entendido
-                      </Button>
-                    </div>
-                  </Card>
-                </DialogContent>
-              </Dialog>
+          </DialogContent>
+        </Dialog>
 
-              <div className="col-span-2 space-y-2">
-                {theme.tickets.lotes.enabled && isCheckingAvailability ? (
-                  <Button
-                    variant="primary"
-                    className="w-full flex items-center justify-center"
-                    disabled
-                  >
-                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
-                    Verificando disponibilidad...
-                  </Button>
-                ) : (
-                  <Button
-                    variant="primary"
-                    className="w-full flex items-center justify-center"
-                    onClick={handleTicketButtonClick}
-                    disabled={theme.tickets.lotes.enabled && Object.values(ticketAvailability).every(
-                      remaining => remaining !== -1 && remaining <= 0
-                    )}
-                  >
-                    <Ticket className="mr-2 h-4 w-4" />
-                    {theme.tickets.lotes.enabled && Object.values(ticketAvailability).every(
-                      remaining => remaining !== -1 && remaining <= 0
-                    )
-                      ? theme.tickets.lotes.soldOutMessage
-                      : 'Comprar Tickets'
-                    }
-                  </Button>
-                )}
-                
-                {!isCheckingAvailability && 
-                 theme.tickets.lotes.enabled && 
-                 Object.values(ticketAvailability).every(remaining => remaining !== -1 && remaining <= 0) && 
-                 theme.tickets.lotes.nextLotMessage && (
-                  <p className="body-small-alt text-center text-opacity-90">
-                    {theme.tickets.lotes.nextLotMessage}
-                  </p>
-                )}
-              </div>
-
-              <Dialog 
-                open={showTicketsModal} 
-                onOpenChange={setShowTicketsModal}
-              >
-                <DialogContent className="sm:max-w-[425px]">
-                  <DialogHeader>
-                    <DialogTitle>Comprar Tickets</DialogTitle>
-                  </DialogHeader>
-                  <TicketsModal onClose={() => setShowTicketsModal(false)} />
-                </DialogContent>
-              </Dialog>
-            </>
-          )}
+        <div className="mt-8 flex justify-center">
+          <a 
+            href="https://eventechy.com" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="hover:opacity-80 transition-opacity"
+          >
+            <Image
+              src="/logo-fondo-oscuro.png"  // Asegúrate de tener este archivo en la carpeta public
+              alt="Eventechy"
+              width={155}
+              height={55}
+              className="rounded-lg"
+            />
+          </a>
         </div>
       </div>
-
-      <Dialog open={!!selectedMessage} onOpenChange={() => setSelectedMessage(null)}>
-        <DialogContent className="sm:max-w-[425px]">
-          <DialogHeader>
-            <DialogTitle className="flex items-center">
-              {selectedMessage?.nombre && selectedMessage.nombre !== 'Todos los mensajes' && (
-                <InitialsCircle name={selectedMessage.nombre} />
-              )}
-              {selectedMessage?.nombre || 'Mensaje'}
-            </DialogTitle>
-          </DialogHeader>
-          <div className="py-4">
-            {selectedMessage?.nombre === 'Todos los mensajes' ? (
-              <div className="space-y-4 max-h-[60vh] overflow-y-auto">
-                {allMessages.map((message) => (
-                  <div key={message.id} className="flex items-start p-2 bg-white rounded-lg shadow">
-                    <div className="flex-shrink-0">
-                      <InitialsCircle name={message.nombre} />
-                    </div>
-                    <div className="ml-3 flex-grow">
-                      <h3 className="font-semibold">{message.nombre}</h3>
-                      <p className="text-sm whitespace-normal break-words">{message.mensaje}</p>
-                    </div>
-                  </div>
-                ))}
-                {hasNextPage && (
-                  <Button 
-                    onClick={() => fetchNextPage()} 
-                    variant="primary" 
-                    className="w-full mt-4"
-                    disabled={isFetchingNextPage}
-                  >
-                    {isFetchingNextPage ? 'Cargando más mensajes...' : 'Ver más mensajes'}
-                  </Button>
-                )}
-              </div>
-            ) : (
-              <p>{selectedMessage?.mensaje}</p>
-            )}
-          </div>
-        </DialogContent>
-      </Dialog>
-
-      <div className="mt-8 flex justify-center">
-        <a 
-          href="https://eventechy.com" 
-          target="_blank" 
-          rel="noopener noreferrer"
-          className="hover:opacity-80 transition-opacity"
-        >
-          <Image
-            src="/logo-fondo-oscuro.png"  // Asegúrate de tener este archivo en la carpeta public
-            alt="Eventechy"
-            width={155}
-            height={55}
-            className="rounded-lg"
-          />
-        </a>
-      </div>
-    </div>
+    </>
   )
 }

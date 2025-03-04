@@ -23,12 +23,19 @@
 @layer components {
   /* Gradiente de fondo */
   .bg-gradient-animation {
-    @apply min-h-screen;
     background: linear-gradient(140deg, 
       #000000 0%,      /* Color1 */
       #471069 55%,     /* Color2 */
       #196E76 100%     /* Color3 */
     );
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
   }
 
   .animate-bounce {
@@ -55,10 +62,10 @@
   }
 
   .heading-h2 {
-    @apply text-2xl font-semibold text-white text-center font-secondary;
+    @apply text-xl font-semibold text-white text-center font-secondary;
   }
   .heading-h2-alt {
-    @apply text-2xl font-semibold text-indigo-800 text-center font-secondary;
+    @apply text-xl font-semibold text-indigo-800 text-center font-secondary;
   }
 
   /* Body text */
@@ -200,6 +207,16 @@
 
   .eventechy-logo:hover {
     filter: drop-shadow(0 0 12px rgba(255, 255, 255, 0.5));
+  }
+
+  /* Contenedor principal */
+  .content-container {
+    position: relative;
+    width: 100%;
+    min-height: 100vh;
+    padding: 1.5rem;
+    overflow-y: auto;
+    z-index: 1;
   }
 }
 

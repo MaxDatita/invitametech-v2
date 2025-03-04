@@ -49,7 +49,7 @@ export default function MensajesPage() {
       <div className="w-full max-w-4xl mx-auto">
        
         {/* Título */}
-        <h1 className="heading-h2 text-center mb-8  text-cyan-200">
+        <h1 className="heading-h1 text-center mb-8 text-cyan-200">
           Mensajes de los invitados
         </h1>
 
